@@ -328,39 +328,64 @@ export default function LifestyleModels() {
       >
         <DraggableAsset itemId="outdoor-surfboard" surface="floor" parentPosition={[-1.35, -0.5, -0.6]}>
           <group ref={surfboardGroupRef} onClick={handleSurfboardClick}>
-          {/* Surfboard body (thin organic compressed sphere) */}
-          <mesh castShadow receiveShadow>
-            <sphereGeometry args={[0.22, 32, 16]} />
-            {/* Scale it to look like a beautiful surfboard */}
-            <group scale={[1.3, 3.8, 0.07]}>
-              <meshStandardMaterial color="#fafaf9" roughness={0.3} />
-            </group>
-          </mesh>
+            {/* High-Fidelity Surfboard Body (Tapered Ellipsoidal Longboard Shape) */}
+            <mesh scale={[0.24, 1.2, 0.024]} castShadow receiveShadow>
+              <sphereGeometry args={[1, 32, 16]} />
+              <meshStandardMaterial color="#fafaf9" roughness={0.15} metalness={0.08} />
+            </mesh>
 
-          {/* Tropical Wave Decal Stripes */}
-          {/* Bright Orange Stripe */}
-          <mesh position={[0, 0.1, 0.016]} castShadow>
-            <boxGeometry args={[0.26, 0.6, 0.002]} />
-            <meshStandardMaterial color="#ea580c" roughness={0.4} />
-          </mesh>
-          {/* Tropical Teal Stripe */}
-          <mesh position={[0, -0.3, 0.017]} castShadow>
-            <boxGeometry args={[0.28, 0.5, 0.002]} />
-            <meshStandardMaterial color="#0d9488" roughness={0.4} />
-          </mesh>
+            {/* Custom Painted Bali Sunset Decal Stripes (Scaled spheres conforming to edge curves) */}
+            {/* Upper Sunset Orange Stripe (Conforms to width at Y = 0.35) */}
+            <mesh position={[0, 0.35, 0.0015]} scale={[0.228, 0.35, 0.0245]} castShadow>
+              <sphereGeometry args={[1, 32, 16]} />
+              <meshStandardMaterial color="#ea580c" roughness={0.25} />
+            </mesh>
+            {/* Middle Warm Yellow Stripe (Conforms to width at Y = 0.0) */}
+            <mesh position={[0, 0.0, 0.0015]} scale={[0.241, 0.3, 0.0245]} castShadow>
+              <sphereGeometry args={[1, 32, 16]} />
+              <meshStandardMaterial color="#eab308" roughness={0.25} />
+            </mesh>
+            {/* Lower Tropical Teal Stripe (Conforms to width at Y = -0.45) */}
+            <mesh position={[0, -0.45, 0.0015]} scale={[0.212, 0.45, 0.0245]} castShadow>
+              <sphereGeometry args={[1, 32, 16]} />
+              <meshStandardMaterial color="#0d9488" roughness={0.25} />
+            </mesh>
 
-          {/* Black stringer line down center */}
-          <mesh position={[0, 0, 0.018]}>
-            <boxGeometry args={[0.006, 1.62, 0.001]} />
-            <meshStandardMaterial color="#1e293b" roughness={0.8} />
-          </mesh>
+            {/* Natural Wood Stringer running down the center core */}
+            <mesh position={[0, 0, 0.002]} castShadow>
+              <boxGeometry args={[0.006, 2.38, 0.026]} />
+              <meshStandardMaterial color="#78350f" roughness={0.6} />
+            </mesh>
 
-          {/* Fin on back (Small custom surfboard fins) */}
-          <mesh position={[0, -0.68, -0.06]} rotation={[0.4, 0, 0]} castShadow>
-            <boxGeometry args={[0.01, 0.08, 0.08]} />
-            <meshStandardMaterial color="#0f172a" roughness={0.5} />
-          </mesh>
-        </group>
+            {/* Black Rubber Traction Tail Pad (For surfer's back foot grip) */}
+            <mesh position={[0, -0.76, 0.022]} rotation={[0, 0, 0]} castShadow>
+              <boxGeometry args={[0.13, 0.28, 0.005]} />
+              <meshStandardMaterial color="#1c1917" roughness={0.95} />
+            </mesh>
+
+            {/* Leash Plug Recess (Tail edge) */}
+            <mesh position={[0, -1.08, 0.02]} castShadow>
+              <cylinderGeometry args={[0.008, 0.008, 0.006, 12]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.8} />
+            </mesh>
+
+            {/* Pro Thruster Fin Setup (Triple fin array on back side) */}
+            {/* Center Fin */}
+            <mesh position={[0, -0.92, -0.04]} rotation={[0.2, 0, 0]} castShadow>
+              <boxGeometry args={[0.006, 0.1, 0.1]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.5} />
+            </mesh>
+            {/* Left Side Fin */}
+            <mesh position={[0.07, -0.86, -0.03]} rotation={[0.2, -0.08, -0.06]} castShadow>
+              <boxGeometry args={[0.005, 0.07, 0.07]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.5} />
+            </mesh>
+            {/* Right Side Fin */}
+            <mesh position={[-0.07, -0.86, -0.03]} rotation={[0.2, 0.08, 0.06]} castShadow>
+              <boxGeometry args={[0.005, 0.07, 0.07]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.5} />
+            </mesh>
+          </group>
         </DraggableAsset>
       </AnimatedLifestyle>
 
