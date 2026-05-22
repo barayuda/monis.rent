@@ -37,18 +37,33 @@ export default function DraggableAsset({
   const savedOffset = customPositions[itemId];
   const currentOffset = savedOffset || [0, 0, 0];
 
-  const deskBamboo = selectedDeskId === 'desk-bamboo';
-  const deskHeight = deskBamboo ? 1.15 : 0.72;
-
-  // Tabletop surface Y coordinate in world space (relative to platform floor Y = -0.5)
-  const targetWorldY = surface === 'desk' ? (deskHeight - 0.5) : -0.5;
-
   // Apply custom offset updates smoothly
   useEffect(() => {
     if (groupRef.current && !localDragging) {
       groupRef.current.position.set(currentOffset[0], currentOffset[1], currentOffset[2]);
     }
   }, [currentOffset, localDragging]);
+
+  // Robust global pointerup listener to prevent stuck dragging/locked OrbitControls when pointerup fires outside the mesh
+  useEffect(() => {
+    if (localDragging) {
+      const handleGlobalPointerUp = () => {
+        setLocalDragging(false);
+        setIsDragging(false);
+        document.body.style.cursor = hovered ? 'grab' : 'auto';
+
+        if (groupRef.current) {
+          const { x, y, z } = groupRef.current.position;
+          updateCustomPosition(itemId, [x, y, z]);
+        }
+      };
+
+      window.addEventListener('pointerup', handleGlobalPointerUp);
+      return () => {
+        window.removeEventListener('pointerup', handleGlobalPointerUp);
+      };
+    }
+  }, [localDragging, hovered, itemId, updateCustomPosition, setIsDragging]);
 
   const handlePointerOver = (e: any) => {
     e.stopPropagation();
@@ -82,13 +97,19 @@ export default function DraggableAsset({
   };
 
   const handlePointerMove = (e: any) => {
-    if (!localDragging || !groupRef.current) return;
+    if (!localDragging || !groupRef.current || !groupRef.current.parent) return;
     e.stopPropagation();
+
+    // Dynamically calculate the parent's actual world position to support GSAP transitions (sit/stand) at 60 FPS
+    const parentWorldPos = new THREE.Vector3();
+    groupRef.current.parent.getWorldPosition(parentWorldPos);
+    const targetWorldY = parentWorldPos.y;
 
     // Raycast on infinite horizontal plane at surface world height
     const dragPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -targetWorldY);
     const intersectPoint = new THREE.Vector3();
-    raycaster.ray.intersectPlane(dragPlane, intersectPoint);
+    const hasIntersection = raycaster.ray.intersectPlane(dragPlane, intersectPoint);
+    if (!hasIntersection) return;
 
     // Calculate clamped world position boundaries to prevent items from flying out of grid
     let clampedWorldX = intersectPoint.x;
@@ -104,9 +125,9 @@ export default function DraggableAsset({
       clampedWorldZ = Math.max(-1.6, Math.min(1.6, intersectPoint.z));
     }
 
-    // Convert from world coordinate to local coordinate offset
-    const offsetX = clampedWorldX - parentPosition[0];
-    const offsetZ = clampedWorldZ - parentPosition[2];
+    // Convert from world coordinate to local coordinate offset relative to parent's world position
+    const offsetX = clampedWorldX - parentWorldPos.x;
+    const offsetZ = clampedWorldZ - parentWorldPos.z;
 
     // Update relative offset position directly for 60 FPS performance
     groupRef.current.position.x = offsetX;

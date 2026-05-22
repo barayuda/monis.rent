@@ -112,6 +112,17 @@ export const ConfiguratorProvider: React.FC<{ children: React.ReactNode }> = ({ 
     setSelectedAccessoryIds((prev) => {
       const next = prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id];
       saveConfig(selectedDeskId, selectedChairId, next, leaseDuration, dayNightMode, ledColor, currency);
+      
+      // If toggling the coffee machine, clear coffee-mug custom position to let it snap to its new default surface correctly
+      if (id === 'coffee-machine') {
+        setCustomPositions((prevPositions) => {
+          const nextPositions = { ...prevPositions };
+          delete nextPositions['coffee-mug'];
+          localStorage.setItem('monis-custom-positions', JSON.stringify(nextPositions));
+          return nextPositions;
+        });
+      }
+      
       return next;
     });
   };
