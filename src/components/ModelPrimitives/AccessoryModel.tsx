@@ -4,6 +4,7 @@ import React, { useRef, useEffect } from 'react';
 import { useConfigurator } from '@/context/ConfiguratorContext';
 import gsap from 'gsap';
 import * as THREE from 'three';
+import DraggableAsset from './DraggableAsset';
 
 // Custom interface for Accessory props
 interface AnimatedAccessoryProps {
@@ -260,7 +261,8 @@ export default function AccessoryModel() {
           3. NOMAD TECH INPUT PACK (KEYBOARD, MOUSE, MAT)
           ========================================== */}
       <AnimatedAccessory active={hasInput} defaultPosition={[0, 0, 0.16]}>
-        <group>
+        <DraggableAsset itemId="tech-input" surface="desk" parentPosition={[0, 0.03, 0.16]}>
+          <group>
           {/* Warm Grey Premium Felt Desk Mat */}
           <mesh position={[0, 0.002, 0]} castShadow receiveShadow>
             <boxGeometry args={[1.5, 0.004, 0.58]} />
@@ -317,6 +319,7 @@ export default function AccessoryModel() {
             </mesh>
           </group>
         </group>
+        </DraggableAsset>
       </AnimatedAccessory>
 
       {/* ==========================================
@@ -325,7 +328,8 @@ export default function AccessoryModel() {
       <AnimatedAccessory active={hasAudio} defaultPosition={[0, 0, 0]}>
         <group ref={audioGroupRef} onClick={handleAudioClick}>
           {/* LEFT STUDIO MONITOR SPEAKER */}
-          <group position={[-1.15, 0.16, -0.28]} rotation={[0, 0.28, 0]}>
+          <DraggableAsset itemId="tech-audio-left" surface="desk" parentPosition={[-1.15, 0.03, -0.28]}>
+            <group position={[0, 0.16, 0]} rotation={[0, 0.28, 0]}>
             {/* Wood Cabinet */}
             <mesh castShadow receiveShadow>
               <boxGeometry args={[0.16, 0.32, 0.18]} />
@@ -346,10 +350,12 @@ export default function AccessoryModel() {
               <cylinderGeometry args={[0.022, 0.022, 0.005, 16]} />
               <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.9} />
             </mesh>
-          </group>
+            </group>
+          </DraggableAsset>
 
           {/* RIGHT STUDIO MONITOR SPEAKER */}
-          <group position={[1.15, 0.16, -0.28]} rotation={[0, -0.28, 0]}>
+          <DraggableAsset itemId="tech-audio-right" surface="desk" parentPosition={[1.15, 0.03, -0.28]}>
+            <group position={[0, 0.16, 0]} rotation={[0, -0.28, 0]}>
             {/* Wood Cabinet */}
             <mesh castShadow receiveShadow>
               <boxGeometry args={[0.16, 0.32, 0.18]} />
@@ -370,10 +376,12 @@ export default function AccessoryModel() {
               <cylinderGeometry args={[0.022, 0.022, 0.005, 16]} />
               <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.9} />
             </mesh>
-          </group>
+            </group>
+          </DraggableAsset>
 
           {/* WOODEN HEADPHONE STAND WITH SUSPENDED ANC HEADPHONES */}
-          <group position={[0.95, 0.17, 0.2]}>
+          <DraggableAsset itemId="tech-audio-headphones" surface="desk" parentPosition={[0.95, 0.03, 0.2]}>
+            <group position={[0, 0.17, 0]}>
             {/* Stand wood flat base */}
             <mesh position={[0, -0.16, 0]} castShadow>
               <cylinderGeometry args={[0.07, 0.07, 0.015, 16]} />
@@ -420,7 +428,8 @@ export default function AccessoryModel() {
                 </mesh>
               </group>
             </group>
-          </group>
+            </group>
+          </DraggableAsset>
         </group>
       </AnimatedAccessory>
 
@@ -428,7 +437,8 @@ export default function AccessoryModel() {
           5. SMART AMBIENT LED DESK LAMP
           ========================================== */}
       <AnimatedAccessory active={hasLamp} defaultPosition={[-0.95, 0.16, -0.22]}>
-        <group ref={lampGroupRef} onClick={handleLampClick}>
+        <DraggableAsset itemId="eco-lamp" surface="desk" parentPosition={[-0.95, 0.03, -0.22]}>
+          <group ref={lampGroupRef} onClick={handleLampClick}>
           {/* Sleek cylindrical ceramic base */}
           <mesh position={[0, -0.14, 0]} castShadow>
             <cylinderGeometry args={[0.06, 0.06, 0.03, 16]} />
@@ -473,14 +483,16 @@ export default function AccessoryModel() {
               shadow-bias={-0.001}
             />
           </group>
-        </group>
+          </group>
+        </DraggableAsset>
       </AnimatedAccessory>
 
       {/* ==========================================
           6. TROPICAL MONSTERA PLANT
           ========================================== */}
       <AnimatedAccessory active={hasPlant} defaultPosition={[0.95, 0.14, -0.22]}>
-        <group ref={plantGroupRef} onClick={handlePlantClick}>
+        <DraggableAsset itemId="eco-plant" surface="desk" parentPosition={[0.95, 0.03, -0.22]}>
+          <group ref={plantGroupRef} onClick={handlePlantClick}>
           {/* Terracotta Minimalist Pot */}
           <mesh position={[0, -0.08, 0]} castShadow receiveShadow>
             <cylinderGeometry args={[0.09, 0.065, 0.14, 16]} />
@@ -537,6 +549,7 @@ export default function AccessoryModel() {
             </group>
           </group>
         </group>
+        </DraggableAsset>
       </AnimatedAccessory>
     </group>
   );

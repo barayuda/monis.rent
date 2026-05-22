@@ -14,6 +14,8 @@ interface ConfiguratorContextProps {
   dayNightMode: DayNightType;
   ledColor: string;
   currency: CurrencyType;
+  customPositions: Record<string, [number, number, number]>;
+  isDragging: boolean;
   
   selectDesk: (id: string) => void;
   selectChair: (id: string) => void;
@@ -26,6 +28,10 @@ interface ConfiguratorContextProps {
   
   getMonthlyRate: () => { baseRate: number; discountedRate: number; discountPercent: number };
   getFormattedPrice: (amount: number) => string;
+  
+  updateCustomPosition: (itemId: string, pos: [number, number, number]) => void;
+  resetAllPositions: () => void;
+  setIsDragging: (dragging: boolean) => void;
 }
 
 const ConfiguratorContext = createContext<ConfiguratorContextProps | undefined>(undefined);
@@ -38,6 +44,8 @@ export const ConfiguratorProvider: React.FC<{ children: React.ReactNode }> = ({ 
   const [dayNightMode, setDayNightMode] = useState<DayNightType>('day');
   const [ledColor, setLedColor] = useState('#fbbf24'); // Sunset amber default
   const [currency, setCurrency] = useState<CurrencyType>('USD');
+  const [customPositions, setCustomPositions] = useState<Record<string, [number, number, number]>>({});
+  const [isDragging, setIsDragging] = useState(false);
 
   // Load from local storage if available (standard Next.js dynamic check)
   useEffect(() => {
@@ -54,6 +62,14 @@ export const ConfiguratorProvider: React.FC<{ children: React.ReactNode }> = ({ 
         if (parsed.currency) setCurrency(parsed.currency);
       } catch (e) {
         console.error("Error parsing saved workspace config", e);
+      }
+    }
+    const savedPositions = localStorage.getItem('monis-custom-positions');
+    if (savedPositions) {
+      try {
+        setCustomPositions(JSON.parse(savedPositions));
+      } catch (e) {
+        console.error("Error parsing saved custom positions", e);
       }
     }
   }, []);
@@ -127,7 +143,23 @@ export const ConfiguratorProvider: React.FC<{ children: React.ReactNode }> = ({ 
       setSelectedChairId(preset.chairId);
       setSelectedAccessoryIds(preset.accessoryIds);
       saveConfig(preset.deskId, preset.chairId, preset.accessoryIds, leaseDuration, dayNightMode, ledColor, currency);
+      // Snapping accessories to default on preset shift prevents visual chaotic overlap
+      setCustomPositions({});
+      localStorage.removeItem('monis-custom-positions');
     }
+  };
+
+  const updateCustomPosition = (itemId: string, pos: [number, number, number]) => {
+    setCustomPositions((prev) => {
+      const next = { ...prev, [itemId]: pos };
+      localStorage.setItem('monis-custom-positions', JSON.stringify(next));
+      return next;
+    });
+  };
+
+  const resetAllPositions = () => {
+    setCustomPositions({});
+    localStorage.removeItem('monis-custom-positions');
   };
 
   const getMonthlyRate = () => {
@@ -201,6 +233,8 @@ export const ConfiguratorProvider: React.FC<{ children: React.ReactNode }> = ({ 
         dayNightMode,
         ledColor,
         currency,
+        customPositions,
+        isDragging,
         selectDesk,
         selectChair,
         toggleAccessory,
@@ -211,6 +245,9 @@ export const ConfiguratorProvider: React.FC<{ children: React.ReactNode }> = ({ 
         selectPreset,
         getMonthlyRate,
         getFormattedPrice,
+        updateCustomPosition,
+        resetAllPositions,
+        setIsDragging,
       }}
     >
       {children}

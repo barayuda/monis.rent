@@ -49,6 +49,8 @@ export default function ConfiguratorPanel() {
     selectPreset,
     getMonthlyRate,
     getFormattedPrice,
+    customPositions,
+    resetAllPositions,
   } = useConfigurator();
 
   const [activeTab, setActiveTab] = useState<'desk' | 'chair' | 'tech' | 'eco'>('desk');
@@ -126,9 +128,21 @@ export default function ConfiguratorPanel() {
       <div className={styles.configurator__scrollArea}>
         {/* Presets Section */}
         <div className={styles.configurator__section}>
-          <div className="flex items-center gap-1.5 mb-3">
-            <Sparkles className="w-4 h-4 text-emerald-600" />
-            <h3 className={styles.configurator__sectionTitle}>Bali Vibe Presets</h3>
+          <div className="flex justify-between items-center mb-3">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-emerald-600" />
+              <h3 className={styles.configurator__sectionTitle}>Bali Vibe Presets</h3>
+            </div>
+            {customPositions && Object.keys(customPositions).length > 0 && (
+              <button
+                onClick={resetAllPositions}
+                className={styles.configurator__resetBtn}
+                title="Reset custom positions to defaults"
+              >
+                <Layers className="w-3.5 h-3.5 mr-1" />
+                Reset Layout
+              </button>
+            )}
           </div>
           <div className={styles.configurator__presetGrid}>
             {PRESET_WORKSPACES.map((preset) => {

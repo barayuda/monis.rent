@@ -5,6 +5,7 @@ import { useConfigurator } from '@/context/ConfiguratorContext';
 import { useFrame } from '@react-three/fiber';
 import gsap from 'gsap';
 import * as THREE from 'three';
+import DraggableAsset from './DraggableAsset';
 
 // Procedural steam particle bubble rising from coffee mug
 function SteamBubble({ p }: { p: any }) {
@@ -143,10 +144,14 @@ const AnimatedLifestyle: React.FC<AnimatedLifestyleProps> = ({
 };
 
 export default function LifestyleModels() {
-  const { selectedAccessoryIds, dayNightMode } = useConfigurator();
+  const { selectedAccessoryIds, dayNightMode, selectedDeskId } = useConfigurator();
 
   // Selected state for each item
   const hasCoffeeMachine = selectedAccessoryIds.includes('coffee-machine');
+  const deskHeight = selectedDeskId === 'desk-bamboo' ? 1.15 : 0.72;
+  const mugDefaultPos: [number, number, number] = hasCoffeeMachine 
+    ? [-1.35, 0.615, 0.12] 
+    : [-0.65, deskHeight + 0.03, 0.15];
   const hasCoffeeMug = selectedAccessoryIds.includes('coffee-mug');
   const hasSurfboard = selectedAccessoryIds.includes('outdoor-surfboard');
   const hasScooter = selectedAccessoryIds.includes('outdoor-scooter');
@@ -209,7 +214,8 @@ export default function LifestyleModels() {
           Includes a small wooden side table when active.
           ========================================== */}
       <AnimatedLifestyle active={hasCoffeeMachine} defaultPosition={[-1.35, 0, 0.1]} defaultRotation={[0, Math.PI / 6, 0]}>
-        <group>
+        <DraggableAsset itemId="coffee-machine" surface="floor" parentPosition={[-1.35, -0.5, 0.1]}>
+          <group>
           {/* Side Table Top (Eco Raw Teak Wood Cylinder) */}
           <mesh position={[0, 0.6, 0]} castShadow receiveShadow>
             <cylinderGeometry args={[0.26, 0.26, 0.03, 24]} />
@@ -268,6 +274,7 @@ export default function LifestyleModels() {
             </mesh>
           </group>
         </group>
+        </DraggableAsset>
       </AnimatedLifestyle>
 
       {/* ==========================================
@@ -279,10 +286,15 @@ export default function LifestyleModels() {
           If table is NOT active, position is on the main desk: [-0.65, 0.75, 0.15] */}
       <AnimatedLifestyle
         active={hasCoffeeMug}
-        defaultPosition={hasCoffeeMachine ? [-1.35, 0.615, 0.12] : [-0.65, 0.75, 0.15]}
+        defaultPosition={mugDefaultPos}
         defaultRotation={hasCoffeeMachine ? [0, 0, 0] : [0, Math.PI / 12, 0]}
       >
-        <group ref={mugGroupRef} onClick={handleMugClick}>
+        <DraggableAsset 
+          itemId="coffee-mug" 
+          surface={hasCoffeeMachine ? 'floor' : 'desk'} 
+          parentPosition={hasCoffeeMachine ? [-1.35, -0.5, 0.12] : [-0.65, -0.5 + deskHeight + 0.03, 0.15]}
+        >
+          <group ref={mugGroupRef} onClick={handleMugClick}>
           {/* Dynamic rising steam vapour */}
           <SteamParticles position={[0, 0.05, 0]} />
 
@@ -302,6 +314,7 @@ export default function LifestyleModels() {
             <meshStandardMaterial color="#1c1917" roughness={0.25} />
           </mesh>
         </group>
+        </DraggableAsset>
       </AnimatedLifestyle>
 
       {/* ==========================================
@@ -313,7 +326,8 @@ export default function LifestyleModels() {
         defaultPosition={[-1.35, 0.8, -0.6]}
         defaultRotation={[0.15, 0.35, -0.15]}
       >
-        <group ref={surfboardGroupRef} onClick={handleSurfboardClick}>
+        <DraggableAsset itemId="outdoor-surfboard" surface="floor" parentPosition={[-1.35, -0.5, -0.6]}>
+          <group ref={surfboardGroupRef} onClick={handleSurfboardClick}>
           {/* Surfboard body (thin organic compressed sphere) */}
           <mesh castShadow receiveShadow>
             <sphereGeometry args={[0.22, 32, 16]} />
@@ -347,6 +361,7 @@ export default function LifestyleModels() {
             <meshStandardMaterial color="#0f172a" roughness={0.5} />
           </mesh>
         </group>
+        </DraggableAsset>
       </AnimatedLifestyle>
 
       {/* ==========================================
@@ -354,7 +369,8 @@ export default function LifestyleModels() {
           Parked on the floor to the right of the desk.
           ========================================== */}
       <AnimatedLifestyle active={hasScooter} defaultPosition={[1.35, 0, 0.4]} defaultRotation={[0, -Math.PI / 5, 0]}>
-        <group ref={scooterGroupRef} onClick={handleScooterClick}>
+        <DraggableAsset itemId="outdoor-scooter" surface="floor" parentPosition={[1.35, -0.5, 0.4]}>
+          <group ref={scooterGroupRef} onClick={handleScooterClick}>
           {/* Rear Fat Wheel */}
           <group position={[0, 0.16, -0.36]} rotation={[0, 0, Math.PI / 2]}>
             <mesh castShadow>
@@ -489,6 +505,7 @@ export default function LifestyleModels() {
             )}
           </group>
         </group>
+        </DraggableAsset>
       </AnimatedLifestyle>
 
       {/* ==========================================
@@ -496,7 +513,8 @@ export default function LifestyleModels() {
           Soft supportive bean bag placed on the floor to the left.
           ========================================== */}
       <AnimatedLifestyle active={hasBeanBag} defaultPosition={[-1.2, 0, 0.5]} defaultRotation={[0, Math.PI / 4, 0]}>
-        <group>
+        <DraggableAsset itemId="relax-beanbag" surface="floor" parentPosition={[-1.2, -0.5, 0.5]}>
+          <group>
           {/* Organic Teardrop Bean Bag shape using multiple stacked, deformed spheres */}
           {/* Bottom fat pouch */}
           <mesh position={[0, 0.14, 0]} castShadow receiveShadow>
@@ -525,6 +543,7 @@ export default function LifestyleModels() {
             <meshStandardMaterial color="#78350f" roughness={0.8} />
           </mesh>
         </group>
+        </DraggableAsset>
       </AnimatedLifestyle>
 
       {/* ==========================================
@@ -546,7 +565,8 @@ export default function LifestyleModels() {
             defaultPosition={[-0.45, deskHeight + 0.03, 0.16]}
             defaultRotation={[0, -Math.PI / 10, 0]}
           >
-            <group>
+            <DraggableAsset itemId="relax-speaker" surface="desk" parentPosition={[-0.45, -0.5 + deskHeight + 0.03, 0.16]}>
+              <group>
               {/* Horizontal Pill Speaker (Sand Woven Fabric Cover) */}
               <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
                 <cylinderGeometry args={[0.026, 0.026, 0.14, 16]} />
@@ -572,6 +592,7 @@ export default function LifestyleModels() {
                 />
               </mesh>
             </group>
+            </DraggableAsset>
           </AnimatedLifestyle>
         );
       })()}
@@ -585,7 +606,8 @@ export default function LifestyleModels() {
         defaultPosition={[-1.75, 0, -0.15]}
         defaultRotation={[0, Math.PI / 4, 0]}
       >
-        <group>
+        <DraggableAsset itemId="garage-shelf" surface="floor" parentPosition={[-1.75, -0.5, -0.15]}>
+          <group>
           {/* Black powder-coated steel posts at corners */}
           <mesh position={[-0.2, 0.7, -0.15]} castShadow>
             <boxGeometry args={[0.02, 1.4, 0.02]} />
@@ -650,6 +672,7 @@ export default function LifestyleModels() {
             </mesh>
           </group>
         </group>
+        </DraggableAsset>
       </AnimatedLifestyle>
 
       {/* ==========================================

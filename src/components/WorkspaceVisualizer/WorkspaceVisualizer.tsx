@@ -55,8 +55,6 @@ function Hotspot({ position, label, onClick }: HotspotProps) {
   );
 }
 
-// --- Main WorkspaceVisualizer Component ---
-
 export default function WorkspaceVisualizer() {
   const {
     selectedDeskId,
@@ -65,6 +63,7 @@ export default function WorkspaceVisualizer() {
     dayNightMode,
     ledColor,
     toggleAccessory,
+    isDragging,
   } = useConfigurator();
 
   const isNight = dayNightMode === 'night';
@@ -97,6 +96,7 @@ export default function WorkspaceVisualizer() {
 
           {/* Orbit Camera Controls */}
           <OrbitControls 
+            enabled={!isDragging}
             enableDamping
             dampingFactor={0.05}
             minDistance={1.8}
