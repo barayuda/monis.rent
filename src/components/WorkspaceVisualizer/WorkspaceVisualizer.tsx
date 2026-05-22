@@ -1,11 +1,59 @@
 'use client';
 
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, Stars, ContactShadows } from '@react-three/drei';
+import { OrbitControls, Stars, ContactShadows, Html } from '@react-three/drei';
 import { useConfigurator } from '@/context/ConfiguratorContext';
 import DeskModel from '../ModelPrimitives/DeskModel';
 import ChairModel from '../ModelPrimitives/ChairModel';
 import AccessoryModel from '../ModelPrimitives/AccessoryModel';
+import LifestyleModels from '../ModelPrimitives/LifestyleModels';
+
+// --- Interactive Pulsing 3D Hotspot Component using Drei <Html> ---
+interface HotspotProps {
+  position: [number, number, number];
+  label: string;
+  onClick: () => void;
+}
+
+function Hotspot({ position, label, onClick }: HotspotProps) {
+  return (
+    <Html position={position} center distanceFactor={2.4}>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick();
+        }}
+        className="group relative flex items-center justify-center pointer-events-auto cursor-pointer focus:outline-none"
+        title={label}
+      >
+        {/* Pulsing outer glowing green circle */}
+        <span className="absolute w-8 h-8 rounded-full bg-emerald-500/40 animate-ping" />
+        
+        {/* Secondary soft ring */}
+        <span className="absolute w-5 h-5 rounded-full bg-emerald-400/20 group-hover:scale-125 transition-transform duration-300" />
+        
+        {/* Main emerald-green point-of-interest button */}
+        <span className="relative z-10 flex items-center justify-center w-5.5 h-5.5 rounded-full bg-emerald-600 border-2 border-white shadow-[0_4px_12px_rgba(16,185,129,0.4)] transition-all duration-300 group-hover:scale-115 group-hover:bg-emerald-500">
+          <svg
+            className="w-3 h-3 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={3.5}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+        </span>
+        
+        {/* Horizontal tag expanding on hover */}
+        <span className="absolute left-7 whitespace-nowrap z-20 bg-slate-900/95 text-white text-[11px] font-bold py-1.5 px-3 rounded-full border border-emerald-500/30 opacity-0 scale-75 origin-left transition-all duration-300 pointer-events-none group-hover:opacity-100 group-hover:scale-100 group-hover:translate-x-1 shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] flex items-center gap-1.5 backdrop-blur-sm select-none">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          {label}
+        </span>
+      </button>
+    </Html>
+  );
+}
 
 // --- Main WorkspaceVisualizer Component ---
 
@@ -16,6 +64,7 @@ export default function WorkspaceVisualizer() {
     selectedAccessoryIds,
     dayNightMode,
     ledColor,
+    toggleAccessory,
   } = useConfigurator();
 
   const isNight = dayNightMode === 'night';
@@ -23,15 +72,13 @@ export default function WorkspaceVisualizer() {
 
   // Scene ambient / background colors
   const bgColor = isNight ? '#0b0f19' : '#FAF8F5';
-  const ambientIntensity = isNight ? 0.3 : 1.6;
+  const ambientIntensity = isNight ? 0.35 : 1.6;
   const sunIntensity = isNight ? 0.1 : 1.8;
 
   const showUltrawide = selectedAccessoryIds.includes('tech-ultrawide');
   const showDual = selectedAccessoryIds.includes('tech-dual');
-  const showTechInput = selectedAccessoryIds.includes('tech-input');
-  const showAudio = selectedAccessoryIds.includes('tech-audio');
-  const showLamp = selectedAccessoryIds.includes('eco-lamp');
   const showPlant = selectedAccessoryIds.includes('eco-plant');
+  const showLamp = selectedAccessoryIds.includes('eco-lamp');
 
   return (
     <div className="w-full h-full flex flex-col relative bg-transparent">
@@ -106,10 +153,36 @@ export default function WorkspaceVisualizer() {
             {/* Core Desk & Nested Accessories (Elevate together smoothly!) */}
             <DeskModel>
               <AccessoryModel />
+              
+              {/* Point-and-Click Floating 3D Hotspots */}
+              {!showUltrawide && !showDual && (
+                <Hotspot
+                  position={[0, 0.36, -0.24]}
+                  label="Add Widescreen Monitor!"
+                  onClick={() => toggleAccessory('tech-ultrawide')}
+                />
+              )}
+              {!showPlant && (
+                <Hotspot
+                  position={[0.95, 0.22, -0.22]}
+                  label="Place a Tropical Plant!"
+                  onClick={() => toggleAccessory('eco-plant')}
+                />
+              )}
+              {!showLamp && (
+                <Hotspot
+                  position={[-0.95, 0.24, -0.22]}
+                  label="Add Ambient Desk Lamp!"
+                  onClick={() => toggleAccessory('eco-lamp')}
+                />
+              )}
             </DeskModel>
 
             {/* Core Chair */}
             <ChairModel />
+
+            {/* Premium Nomad Lifestyle Models (Floor items + Desk speaker) */}
+            <LifestyleModels />
 
             {/* Soft Contact Shadows beneath furniture */}
             <ContactShadows 
@@ -118,6 +191,7 @@ export default function WorkspaceVisualizer() {
               scale={6} 
               blur={2.4} 
               far={1.6} 
+              receiveShadow
             />
           </group>
         </Canvas>

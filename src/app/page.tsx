@@ -4,6 +4,7 @@ import React from 'react';
 import dynamic from 'next/dynamic';
 import { ConfiguratorProvider } from '@/context/ConfiguratorContext';
 import ConfiguratorPanel from '@/components/ConfiguratorPanel/ConfiguratorPanel';
+import LifestylePanel from '@/components/LifestylePanel/LifestylePanel';
 
 // Dynamically import Three.js WorkspaceVisualizer with no SSR to avoid Canvas hydration issues
 const WorkspaceVisualizer = dynamic(
@@ -21,7 +22,7 @@ const WorkspaceVisualizer = dynamic(
 export default function WorkspaceDesignerPage() {
   return (
     <ConfiguratorProvider>
-      <div className="min-h-screen bg-[#F9F6F0] flex flex-col text-[#2D2A26] font-sans selection:bg-emerald-100 selection:text-emerald-900">
+      <div className="min-h-screen md:h-screen md:overflow-hidden bg-[#F9F6F0] flex flex-col text-[#2D2A26] font-sans selection:bg-emerald-100 selection:text-emerald-900">
         {/* Sleek Minimalist Eco Header */}
         <header className="px-6 py-4 md:px-12 bg-white/70 backdrop-blur-md border-b border-[#E6E1D6] sticky top-0 z-40 flex justify-between items-center transition-all duration-300">
           <div className="flex items-center gap-3">
@@ -48,15 +49,23 @@ export default function WorkspaceDesignerPage() {
         </header>
 
         {/* Main Dashboard Layout */}
-        <main className="flex-1 max-w-[1600px] w-full mx-auto p-4 md:p-8 lg:p-12 flex flex-col md:flex-row gap-6 md:gap-8 h-[calc(100vh-73px)] overflow-hidden">
-          {/* Visualizer Canvas Panel (takes more space on desktop) */}
-          <section className="flex-[5] flex flex-col h-[50vh] md:h-full relative rounded-3xl overflow-hidden bg-white border border-[#E6E1D6] shadow-sm transition-all duration-500 hover:shadow-md">
-            <WorkspaceVisualizer />
-          </section>
+        <main className="dashboard-layout flex-1 max-w-[1600px] w-full mx-auto p-4 md:p-6 lg:p-8 flex flex-col gap-6">
+          {/* Upper Configurator + Visualizer Row */}
+          <div className="flex-1 flex flex-col md:flex-row gap-6 md:overflow-hidden md:min-h-0">
+            {/* Visualizer Canvas Panel (takes more space on desktop) */}
+            <section className="flex-[5] flex flex-col h-[50vh] md:h-full min-h-[350px] relative rounded-3xl overflow-hidden bg-white border border-[#E6E1D6] shadow-sm transition-all duration-500 hover:shadow-md">
+              <WorkspaceVisualizer />
+            </section>
 
-          {/* Configurator Controls Panel */}
-          <section className="flex-[4] flex flex-col h-auto md:h-full bg-white rounded-3xl border border-[#E6E1D6] shadow-sm overflow-hidden transition-all duration-500 hover:shadow-md">
-            <ConfiguratorPanel />
+            {/* Configurator Controls Panel */}
+            <section className="flex-[4] flex flex-col h-auto md:h-full min-h-[450px] md:min-h-0 bg-white rounded-3xl border border-[#E6E1D6] shadow-sm overflow-hidden transition-all duration-500 hover:shadow-md">
+              <ConfiguratorPanel />
+            </section>
+          </div>
+
+          {/* Lower Lifestyle Ribbon Panel (Bali accessories one-by-one addition) */}
+          <section className="rounded-3xl border border-[#E6E1D6] bg-white shadow-sm overflow-hidden shrink-0">
+            <LifestylePanel />
           </section>
         </main>
       </div>

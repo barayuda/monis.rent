@@ -1,0 +1,69 @@
+@import "tailwindcss" reference;
+
+.lifestyle {
+  @apply bg-white border-t border-[#E6E1D6] p-5 select-none;
+}
+
+.lifestyle__titleRow {
+  @apply flex justify-between items-center mb-4;
+}
+
+.lifestyle__title {
+  @apply text-xs font-black uppercase tracking-widest text-[#8A8478] flex items-center gap-1.5;
+}
+
+.lifestyle__badge {
+  @apply text-[10px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100/50;
+}
+
+.lifestyle__grid {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5;
+}
+
+.lifestyle__zone {
+  @apply p-4 rounded-2xl bg-[#FAF8F5] border border-[#E6E1D6]/80 flex flex-col gap-3 transition-all duration-300 hover:border-[#D0C9BA];
+}
+
+.lifestyle__zoneTitle {
+  @apply font-black text-xs text-[#4A453C] tracking-wide flex items-center gap-1.5 border-b border-[#F0EBE1] pb-2;
+}
+
+.lifestyle__cardList {
+  @apply flex flex-col gap-2.5;
+}
+
+.lifestyle__card {
+  @apply p-3 rounded-xl bg-white border border-[#EDE8DE] hover:border-[#D0C9BA] hover:shadow-sm transition-all duration-200 cursor-pointer flex justify-between items-center relative;
+}
+
+.lifestyle__card--active {
+  @apply border-emerald-600 ring-2 ring-emerald-600/10 bg-emerald-50/10;
+}
+
+.lifestyle__cardInfo {
+  @apply flex-1 pr-3;
+}
+
+.lifestyle__itemName {
+  @apply font-bold text-xs text-[#1C1A17] block;
+}
+
+.lifestyle__itemPrice {
+  @apply text-[10px] text-[#8A8478] font-semibold mt-0.5 block;
+}
+
+.lifestyle__toggle {
+  @apply w-8 h-5 bg-stone-200 rounded-full p-0.5 transition-colors duration-300 cursor-pointer flex items-center relative;
+}
+
+.lifestyle__toggle--active {
+  @apply bg-emerald-600;
+}
+
+.lifestyle__toggleDot {
+  @apply w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-300 transform;
+}
+
+.lifestyle__toggleDot--active {
+  @apply translate-x-3;
+}
