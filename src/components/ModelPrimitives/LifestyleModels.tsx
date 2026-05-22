@@ -151,7 +151,7 @@ export default function LifestyleModels() {
   const deskHeight = selectedDeskId === 'desk-bamboo' ? 1.15 : 0.72;
   const mugDefaultPos: [number, number, number] = hasCoffeeMachine 
     ? [-1.35, 0.615, 0.12] 
-    : [-0.65, deskHeight + 0.03, 0.15];
+    : [-0.78, deskHeight + 0.03, 0.20];
   const hasCoffeeMug = selectedAccessoryIds.includes('coffee-mug');
   const hasSurfboard = selectedAccessoryIds.includes('outdoor-surfboard');
   const hasScooter = selectedAccessoryIds.includes('outdoor-scooter');
@@ -464,7 +464,7 @@ export default function LifestyleModels() {
         <DraggableAsset 
           itemId="coffee-mug" 
           surface={hasCoffeeMachine ? 'floor' : 'desk'} 
-          parentPosition={hasCoffeeMachine ? [-1.35, -0.5, 0.12] : [-0.65, -0.5 + deskHeight + 0.03, 0.15]}
+          parentPosition={hasCoffeeMachine ? [-1.35, -0.5, 0.12] : [-0.78, -0.5 + deskHeight + 0.03, 0.20]}
         >
           <group ref={mugGroupRef} onClick={handleMugClick}>
           {/* Dynamic rising steam vapour */}
@@ -1094,10 +1094,10 @@ export default function LifestyleModels() {
         return (
           <AnimatedLifestyle
             active={hasSpeaker}
-            defaultPosition={[-0.45, deskHeight + 0.03, 0.16]}
+            defaultPosition={[-0.50, deskHeight + 0.03, 0.22]}
             defaultRotation={[0, -Math.PI / 10, 0]}
           >
-            <DraggableAsset itemId="relax-speaker" surface="desk" parentPosition={[-0.45, -0.5 + deskHeight + 0.03, 0.16]}>
+            <DraggableAsset itemId="relax-speaker" surface="desk" parentPosition={[-0.50, -0.5 + deskHeight + 0.03, 0.22]}>
               <group>
               {/* Horizontal Pill Speaker (Sand Woven Fabric Cover) */}
               <mesh rotation={[0, 0, Math.PI / 2]} castShadow>

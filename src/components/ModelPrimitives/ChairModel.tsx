@@ -53,7 +53,7 @@ export default function ChairModel() {
   return (
     <group 
       ref={chairGroupRef} 
-      position={[0, 0, 0.85]}
+      position={[0, 0, 1.15]}
       onClick={handleChairClick}
     >
       {/* ==========================================

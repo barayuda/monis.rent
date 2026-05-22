@@ -3,6 +3,7 @@
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Stars, ContactShadows, Html } from '@react-three/drei';
 import { useConfigurator } from '@/context/ConfiguratorContext';
+import { RotateCcw } from 'lucide-react';
 import DeskModel from '../ModelPrimitives/DeskModel';
 import ChairModel from '../ModelPrimitives/ChairModel';
 import AccessoryModel from '../ModelPrimitives/AccessoryModel';
@@ -64,6 +65,8 @@ export default function WorkspaceVisualizer() {
     ledColor,
     toggleAccessory,
     isDragging,
+    customPositions,
+    resetAllPositions,
   } = useConfigurator();
 
   const isNight = dayNightMode === 'night';
@@ -78,6 +81,8 @@ export default function WorkspaceVisualizer() {
   const showDual = selectedAccessoryIds.includes('tech-dual');
   const showPlant = selectedAccessoryIds.includes('eco-plant');
   const showLamp = selectedAccessoryIds.includes('eco-lamp');
+
+  const hasCustomPositions = Object.keys(customPositions).length > 0;
 
   return (
     <div className="w-full h-full flex flex-col relative bg-transparent">
@@ -164,14 +169,14 @@ export default function WorkspaceVisualizer() {
               )}
               {!showPlant && (
                 <Hotspot
-                  position={[0.95, 0.22, -0.22]}
+                  position={[1.08, 0.22, -0.28]}
                   label="Place a Tropical Plant!"
                   onClick={() => toggleAccessory('eco-plant')}
                 />
               )}
               {!showLamp && (
                 <Hotspot
-                  position={[-0.95, 0.24, -0.22]}
+                  position={[-1.08, 0.24, -0.28]}
                   label="Add Ambient Desk Lamp!"
                   onClick={() => toggleAccessory('eco-lamp')}
                 />
@@ -210,6 +215,18 @@ export default function WorkspaceVisualizer() {
           <span className="text-emerald-700 font-extrabold flex items-center gap-0.5">Click items to play! ✨</span>
         </span>
       </div>
+
+      {/* Floating Glassmorphic Reset Layout Button */}
+      {hasCustomPositions && (
+        <button
+          onClick={resetAllPositions}
+          className="absolute bottom-4 right-4 z-10 flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white/80 backdrop-blur-sm border border-[#E6E1D6] shadow-md text-xs font-bold text-stone-700 hover:bg-stone-50/90 hover:shadow-lg hover:border-stone-300 active:scale-95 transition-all duration-200 select-none cursor-pointer group"
+          title="Reset all items to default positions"
+        >
+          <RotateCcw className="w-3.5 h-3.5 text-emerald-600 group-hover:rotate-[-45deg] transition-transform duration-300" />
+          <span>Reset Layout</span>
+        </button>
+      )}
     </div>
   );
 }
