@@ -1,0 +1,100 @@
+@import "../../app/globals.css" reference;
+
+/* ==========================================================================
+   Workspace Visualizer BEM Styles using Tailwind @apply
+   ========================================================================== */
+
+.workspace-visualizer {
+  @apply relative w-full h-full flex flex-col bg-[#F5F2eb] transition-colors duration-1000 overflow-hidden select-none;
+}
+
+.workspace-visualizer--night {
+  @apply bg-[#0b0c10];
+}
+
+.workspace-visualizer__canvas-container {
+  @apply w-full h-full flex-1 outline-none relative;
+}
+
+/* Floating UI Overlay for Configurator details */
+.workspace-visualizer__overlay {
+  @apply absolute top-0 left-0 w-full h-full pointer-events-none z-10 p-5 flex flex-col justify-between;
+}
+
+.workspace-visualizer__header {
+  @apply flex justify-between items-start w-full;
+}
+
+.workspace-visualizer__badge-list {
+  @apply flex flex-col gap-2 items-start;
+}
+
+.workspace-visualizer__badge {
+  @apply pointer-events-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur-md border border-[#E6E1D6] text-[11px] font-bold text-[#4A453A] shadow-sm tracking-wider uppercase transition-all duration-500;
+}
+
+.workspace-visualizer__badge--night {
+  @apply bg-black/60 border-emerald-950/20 text-emerald-400 shadow-emerald-900/10;
+}
+
+.workspace-visualizer__badge--accent {
+  @apply bg-emerald-500/10 border-emerald-200 text-emerald-700;
+}
+
+.workspace-visualizer__badge--accent-night {
+  @apply bg-emerald-400/10 border-emerald-900/30 text-emerald-400;
+}
+
+.workspace-visualizer__led-indicator {
+  @apply w-2 h-2 rounded-full shadow;
+}
+
+/* Day/Night and Camera Floating Controls */
+.workspace-visualizer__controls-panel {
+  @apply flex justify-between items-end w-full;
+}
+
+.workspace-visualizer__ambient-status {
+  @apply flex flex-col gap-1 pointer-events-auto text-[#2D2A26] transition-colors duration-1000;
+}
+
+.workspace-visualizer__ambient-status--night {
+  @apply text-white/80;
+}
+
+.workspace-visualizer__ambient-title {
+  @apply text-xs font-bold tracking-widest uppercase opacity-60;
+}
+
+.workspace-visualizer__ambient-value {
+  @apply text-lg font-bold flex items-center gap-2;
+}
+
+.workspace-visualizer__action-group {
+  @apply pointer-events-auto flex items-center gap-2.5;
+}
+
+.workspace-visualizer__action-button {
+  @apply p-3 rounded-2xl bg-white/90 backdrop-blur border border-[#E6E1D6] text-[#2D2A26] hover:bg-[#F9F6F0] active:scale-95 transition-all duration-300 shadow-sm hover:shadow cursor-pointer flex items-center justify-center gap-1.5 text-xs font-bold;
+}
+
+.workspace-visualizer__action-button--night {
+  @apply bg-black/75 border-[#2f2f3d] text-white/90 hover:bg-[#1a1b23] hover:text-white;
+}
+
+.workspace-visualizer__action-button--active {
+  @apply bg-emerald-600 border-emerald-600 text-white hover:bg-emerald-700;
+}
+
+.workspace-visualizer__action-button--active-night {
+  @apply bg-emerald-500 border-emerald-500 text-black hover:bg-emerald-400;
+}
+
+/* Spinner for Initial loading */
+.workspace-visualizer__loader {
+  @apply absolute inset-0 bg-[#F9F6F0] flex flex-col items-center justify-center gap-3 z-30 transition-colors duration-1000;
+}
+
+.workspace-visualizer__loader--night {
+  @apply bg-[#0b0c10];
+}

@@ -1,0 +1,150 @@
+@import "tailwindcss" reference;
+
+.configurator {
+  @apply flex flex-col h-full bg-white select-none;
+}
+
+.configurator__topbar {
+  @apply p-4 border-b border-[#E6E1D6] flex justify-between items-center bg-[#FAF8F5]/80 backdrop-blur-sm sticky top-0 z-10;
+}
+
+.configurator__currencyGroup {
+  @apply flex bg-[#F0EBE1] p-0.5 rounded-lg border border-[#EDE8DE];
+}
+
+.configurator__currencyBtn {
+  @apply flex items-center justify-center px-3 py-1 text-xs font-bold rounded-md transition-all duration-200 text-[#6B655A] hover:text-[#1C1A17] cursor-pointer;
+}
+
+.configurator__currencyBtn--active {
+  @apply bg-white text-[#1C1A17] shadow-sm;
+}
+
+.configurator__themeGroup {
+  @apply flex bg-[#F0EBE1] p-0.5 rounded-lg border border-[#EDE8DE];
+}
+
+.configurator__themeBtn {
+  @apply flex items-center justify-center w-8 h-7 text-xs rounded-md transition-all duration-200 text-[#6B655A] hover:text-[#1C1A17] cursor-pointer;
+}
+
+.configurator__themeBtn--activeDay {
+  @apply bg-amber-500 text-white shadow-sm;
+}
+
+.configurator__themeBtn--activeNight {
+  @apply bg-emerald-950 text-emerald-400 shadow-sm;
+}
+
+.configurator__scrollArea {
+  @apply flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scrollbar-thin;
+}
+
+.configurator__section {
+  @apply flex flex-col;
+}
+
+.configurator__sectionTitle {
+  @apply text-xs font-extrabold uppercase tracking-wider text-[#6B655A];
+}
+
+.configurator__presetGrid {
+  @apply grid grid-cols-3 gap-2.5;
+}
+
+.configurator__presetCard {
+  @apply p-3 rounded-2xl bg-[#FAF8F5] border border-[#E6E1D6] text-left transition-all duration-300 hover:bg-[#F4EFE6] hover:border-[#D0C9BA] hover:-translate-y-0.5 active:translate-y-0 cursor-pointer flex flex-col justify-between min-h-[72px];
+}
+
+.configurator__presetCard--active {
+  @apply bg-emerald-50/70 border-emerald-600 ring-1 ring-emerald-600/30;
+}
+
+.configurator__tabContainer {
+  @apply sticky top-0 bg-white z-10 -mx-4 px-4 py-2 border-y border-[#FAF8F5] shadow-[0_4px_12px_-12px_rgba(0,0,0,0.05)];
+}
+
+.configurator__tabs {
+  @apply flex bg-[#FAF8F5] p-1 rounded-xl border border-[#E6E1D6] gap-1;
+}
+
+.configurator__tab {
+  @apply flex-1 text-center py-2 text-xs font-bold text-[#6B655A] rounded-lg transition-all duration-200 cursor-pointer;
+}
+
+.configurator__tab--active {
+  @apply bg-emerald-700 text-white shadow-sm shadow-emerald-700/10;
+}
+
+.configurator__productGrid {
+  @apply grid grid-cols-1 gap-4;
+}
+
+.configurator__productCard {
+  @apply p-4 rounded-2xl bg-[#FAF8F5] border border-[#E6E1D6] transition-all duration-300 hover:bg-white hover:shadow-md hover:border-[#D0C9BA] cursor-pointer flex flex-col relative;
+}
+
+.configurator__productCard--active {
+  @apply bg-white border-emerald-600 ring-2 ring-emerald-600/15 shadow-sm;
+}
+
+.configurator__productSpecs {
+  @apply flex flex-wrap gap-1.5 mt-auto;
+}
+
+.configurator__specBadge {
+  @apply px-2 py-0.5 rounded-full bg-[#FAF8F5] text-[#6B655A] text-[9px] font-semibold border border-[#EDE8DE];
+}
+
+.configurator__checkbox {
+  @apply w-5 h-5 rounded-md border border-[#C8C2B4] flex items-center justify-center transition-all duration-300;
+}
+
+.configurator__checkbox--active {
+  @apply bg-emerald-600 border-emerald-600;
+}
+
+.configurator__ledCard {
+  @apply p-4 rounded-2xl bg-emerald-50/40 border border-emerald-100;
+}
+
+.configurator__slider {
+  @apply w-full h-1.5 bg-[#FAF8F5] rounded-full appearance-none cursor-pointer border border-[#E6E1D6];
+}
+
+.configurator__slider::-webkit-slider-runnable-track {
+  @apply h-1.5 bg-[#F0EBE1] rounded-full;
+}
+
+.configurator__slider::-webkit-slider-thumb {
+  @apply appearance-none w-5 h-5 rounded-full bg-emerald-700 border-2 border-white shadow-md -mt-1.5 transition-all duration-150 hover:scale-110 active:scale-95;
+}
+
+.configurator__sliderTicks {
+  @apply flex justify-between mt-3 px-1;
+}
+
+.configurator__tickBtn {
+  @apply flex flex-col items-center justify-center p-1 rounded-lg text-[#6B655A] border border-transparent transition-all duration-200 hover:bg-[#FAF8F5] cursor-pointer;
+}
+
+.configurator__tickBtn--active {
+  @apply text-emerald-800 bg-emerald-50 border-emerald-100;
+}
+
+.configurator__rateCard {
+  @apply p-5 border-t border-[#E6E1D6] bg-white sticky bottom-0 z-10 shadow-[0_-8px_24px_-16px_rgba(0,0,0,0.1)];
+}
+
+.configurator__cta {
+  @apply w-full py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm tracking-wide shadow-lg shadow-emerald-600/20 hover:shadow-xl hover:shadow-emerald-600/30 flex items-center justify-center transition-all duration-300 transform active:scale-[0.98] cursor-pointer;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

@@ -1,0 +1,137 @@
+@import "tailwindcss" reference;
+
+.modalOverlay {
+  @apply fixed inset-0 z-50 bg-[#1C1A17]/35 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto;
+  animation: fadeInOverlay 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modalCard {
+  @apply w-full max-w-4xl bg-white border border-[#E6E1D6] rounded-3xl shadow-2xl relative p-5 md:p-8 flex flex-col max-h-[95vh] overflow-y-auto;
+  animation: scaleInCard 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.modalCard__closeBtn {
+  @apply absolute top-4 right-4 p-1.5 rounded-full hover:bg-[#FAF8F5] transition-all cursor-pointer z-10;
+}
+
+.modalCard__header {
+  @apply mb-6;
+}
+
+.modalCard__progressBar {
+  @apply w-full h-1 bg-[#F0EBE1] rounded-full overflow-hidden;
+}
+
+.modalCard__progressFill {
+  @apply h-full bg-emerald-600 rounded-full transition-all duration-500;
+}
+
+.modalCard__stepsTitle {
+  @apply flex justify-between text-[10px] uppercase font-bold tracking-wider mt-2.5;
+}
+
+.modalStep {
+  @apply flex flex-col;
+}
+
+.modalCard__title {
+  @apply text-xl md:text-2xl font-black text-[#1C1A17] tracking-tight;
+}
+
+.modalCard__subtitle {
+  @apply text-xs md:text-sm text-[#6B655A] mt-1;
+}
+
+.modalCard__label {
+  @apply block text-xs font-extrabold uppercase tracking-wide text-[#6B655A] mb-2 flex items-center;
+}
+
+.modalCard__neighborhoodGrid {
+  @apply grid grid-cols-2 md:grid-cols-4 gap-2.5;
+}
+
+.modalCard__neighborhoodBtn {
+  @apply p-3.5 rounded-2xl bg-[#FAF8F5] border border-[#E6E1D6] text-left transition-all duration-300 hover:bg-[#F4EFE6] hover:border-[#D0C9BA] cursor-pointer flex flex-col h-full justify-between;
+}
+
+.modalCard__neighborhoodBtn--active {
+  @apply bg-emerald-50/60 border-emerald-600 ring-2 ring-emerald-600/10;
+}
+
+.modalCard__input {
+  @apply w-full px-4 py-2.5 rounded-xl border border-[#D0C9BA] bg-[#FAF8F5] text-xs text-[#1C1A17] placeholder-[#C8C2B4] transition-all duration-200 outline-none focus:bg-white focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10;
+}
+
+.modalCard__textarea {
+  @apply w-full px-4 py-2.5 rounded-xl border border-[#D0C9BA] bg-[#FAF8F5] text-xs text-[#1C1A17] placeholder-[#C8C2B4] transition-all duration-200 outline-none resize-none focus:bg-white focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10;
+}
+
+.modalCard__summaryBox {
+  @apply p-4 bg-[#FAF8F5] border border-[#E6E1D6] rounded-2xl h-full flex flex-col justify-between;
+}
+
+.celebrationStep {
+  @apply flex flex-col justify-center items-center relative overflow-hidden py-4;
+}
+
+/* Falling organic bamboo/leaves details inside Bali */
+.fallingLeaves {
+  @apply absolute inset-0 pointer-events-none overflow-hidden z-0;
+}
+
+.leafParticle {
+  @apply absolute w-3.5 h-3.5 bg-emerald-500 opacity-0 rounded-tl-full rounded-br-full;
+  animation: fall 6s linear infinite;
+}
+
+/* Randomize leaf shapes, speeds, and trajectories using CSS targeting */
+.leafParticle:nth-child(1) { left: 10%; width: 14px; height: 14px; animation-duration: 5.5s; animation-delay: 0.2s; background-color: #059669; }
+.leafParticle:nth-child(2) { left: 20%; width: 10px; height: 10px; animation-duration: 7s; animation-delay: 1.5s; background-color: #10b981; }
+.leafParticle:nth-child(3) { left: 35%; width: 16px; height: 16px; animation-duration: 6.2s; animation-delay: 0.8s; background-color: #047857; }
+.leafParticle:nth-child(4) { left: 45%; width: 12px; height: 12px; animation-duration: 5.0s; animation-delay: 2.1s; background-color: #34d399; }
+.leafParticle:nth-child(5) { left: 55%; width: 15px; height: 15px; animation-duration: 6.8s; animation-delay: 0.5s; background-color: #10b981; }
+.leafParticle:nth-child(6) { left: 70%; width: 8px; height: 8px; animation-duration: 8s; animation-delay: 1.2s; background-color: #059669; }
+.leafParticle:nth-child(7) { left: 80%; width: 14px; height: 14px; animation-duration: 5.8s; animation-delay: 3s; background-color: #047857; }
+.leafParticle:nth-child(8) { left: 90%; width: 11px; height: 11px; animation-duration: 6.5s; animation-delay: 0.1s; background-color: #10b981; }
+.leafParticle:nth-child(9) { left: 15%; width: 12px; height: 12px; animation-duration: 6.0s; animation-delay: 3.5s; background-color: #34d399; }
+.leafParticle:nth-child(10) { left: 65%; width: 13px; height: 13px; animation-duration: 7.2s; animation-delay: 2.8s; background-color: #059669; }
+.leafParticle:nth-child(11) { left: 40%; width: 9px; height: 9px; animation-duration: 5.2s; animation-delay: 4.2s; background-color: #10b981; }
+.leafParticle:nth-child(12) { left: 75%; width: 15px; height: 15px; animation-duration: 6.4s; animation-delay: 1.9s; background-color: #047857; }
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleInCard {
+  from { opacity: 0; transform: scale(0.95) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes fall {
+  0% {
+    top: -10%;
+    transform: translateX(0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.8;
+  }
+  90% {
+    opacity: 0.8;
+  }
+  100% {
+    top: 110%;
+    transform: translateX(35px) rotate(360deg);
+    opacity: 0;
+  }
+}
