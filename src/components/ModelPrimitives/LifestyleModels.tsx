@@ -605,140 +605,438 @@ export default function LifestyleModels() {
       <AnimatedLifestyle active={hasScooter} defaultPosition={[1.35, 0, 0.4]} defaultRotation={[0, -Math.PI / 5, 0]}>
         <DraggableAsset itemId="outdoor-scooter" surface="floor" parentPosition={[1.35, -0.5, 0.4]}>
           <group ref={scooterGroupRef} onClick={handleScooterClick}>
-          {/* Rear Fat Wheel */}
-          <group position={[0, 0.16, -0.36]} rotation={[0, 0, Math.PI / 2]}>
-            <mesh castShadow>
-              <cylinderGeometry args={[0.16, 0.16, 0.08, 16]} />
-              <meshStandardMaterial color="#1c1917" roughness={0.9} />
+            {/* 1. REAR fat white-wall wheel with spoked rim hub */}
+            <group position={[0, 0.16, -0.38]} rotation={[0, 0, Math.PI / 2]}>
+              {/* Dark stone-grey rubber tire */}
+              <mesh castShadow>
+                <cylinderGeometry args={[0.16, 0.16, 0.08, 24]} />
+                <meshStandardMaterial color="#1c1917" roughness={0.9} />
+              </mesh>
+              {/* White-wall tire sidewall details */}
+              <mesh position={[0, 0.041, 0]}>
+                <cylinderGeometry args={[0.11, 0.11, 0.002, 16]} />
+                <meshStandardMaterial color="#f5f5f4" roughness={0.8} />
+              </mesh>
+              <mesh position={[0, -0.041, 0]}>
+                <cylinderGeometry args={[0.11, 0.11, 0.002, 16]} />
+                <meshStandardMaterial color="#f5f5f4" roughness={0.8} />
+              </mesh>
+              {/* Deep chrome wheel rim */}
+              <mesh position={[0, 0, 0]} castShadow>
+                <cylinderGeometry args={[0.08, 0.08, 0.082, 16]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+              </mesh>
+              {/* Center chrome hubcap nut */}
+              <mesh position={[0, 0.043, 0]} castShadow>
+                <cylinderGeometry args={[0.024, 0.024, 0.006, 8]} />
+                <meshStandardMaterial color="#ef4444" roughness={0.4} /> {/* Red center cap accent */}
+              </mesh>
+              <mesh position={[0, -0.043, 0]} castShadow>
+                <cylinderGeometry args={[0.024, 0.024, 0.006, 8]} />
+                <meshStandardMaterial color="#ef4444" roughness={0.4} />
+              </mesh>
+            </group>
+
+            {/* Left-side engine transmission swingarm cover */}
+            <mesh position={[0.08, 0.15, -0.24]} rotation={[0.05, 0, 0]} castShadow>
+              <boxGeometry args={[0.05, 0.08, 0.26]} />
+              <meshStandardMaterial color="#e2e8f0" metalness={0.8} roughness={0.2} />
             </mesh>
-            {/* White-wall ring tire detail */}
-            <mesh position={[0, 0.041, 0]}>
-              <cylinderGeometry args={[0.1, 0.1, 0.002, 12]} />
-              <meshStandardMaterial color="#fafaf9" roughness={0.8} />
+
+            {/* 2. FRONT white-wall wheel with spoked rim hub */}
+            <group position={[0, 0.16, 0.38]} rotation={[0, 0, Math.PI / 2]}>
+              <mesh castShadow>
+                <cylinderGeometry args={[0.16, 0.16, 0.08, 24]} />
+                <meshStandardMaterial color="#1c1917" roughness={0.9} />
+              </mesh>
+              <mesh position={[0, 0.041, 0]}>
+                <cylinderGeometry args={[0.11, 0.11, 0.002, 16]} />
+                <meshStandardMaterial color="#f5f5f4" roughness={0.8} />
+              </mesh>
+              <mesh position={[0, -0.041, 0]}>
+                <cylinderGeometry args={[0.11, 0.11, 0.002, 16]} />
+                <meshStandardMaterial color="#f5f5f4" roughness={0.8} />
+              </mesh>
+              <mesh position={[0, 0, 0]} castShadow>
+                <cylinderGeometry args={[0.08, 0.08, 0.082, 16]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+              </mesh>
+              {/* Red center cap accent */}
+              <mesh position={[0, 0.043, 0]} castShadow>
+                <cylinderGeometry args={[0.024, 0.024, 0.006, 8]} />
+                <meshStandardMaterial color="#ef4444" roughness={0.4} />
+              </mesh>
+              <mesh position={[0, -0.043, 0]} castShadow>
+                <cylinderGeometry args={[0.024, 0.024, 0.006, 8]} />
+                <meshStandardMaterial color="#ef4444" roughness={0.4} />
+              </mesh>
+            </group>
+
+            {/* Front suspension single-sided linking arm (Classic Vespa signature) */}
+            <group position={[0.04, 0.18, 0.38]} rotation={[0.15, 0, 0]}>
+              {/* Linkage body */}
+              <mesh castShadow>
+                <boxGeometry args={[0.015, 0.08, 0.03]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.15} />
+              </mesh>
+              {/* Gorgeous tiny red coil suspension spring */}
+              <group position={[0.015, -0.02, 0.01]}>
+                <mesh castShadow>
+                  <cylinderGeometry args={[0.008, 0.008, 0.09, 8]} />
+                  <meshStandardMaterial color="#475569" metalness={0.8} />
+                </mesh>
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <mesh key={i} position={[0, -0.03 + i * 0.015, 0]} castShadow>
+                    <torusGeometry args={[0.014, 0.004, 6, 12]} />
+                    <meshStandardMaterial color="#dc2626" roughness={0.3} />
+                  </mesh>
+                ))}
+              </group>
+            </group>
+
+            {/* 3. ELEGANT RETRO Vespa Floorboard & Spine */}
+            {/* Low-slung metal floorboard */}
+            <mesh position={[0, 0.15, -0.02]} castShadow receiveShadow>
+              <boxGeometry args={[0.34, 0.03, 0.54]} />
+              <meshStandardMaterial color="#a7f3d0" roughness={0.15} metalness={0.1} />
             </mesh>
-            <mesh position={[0, -0.041, 0]}>
-              <cylinderGeometry args={[0.1, 0.1, 0.002, 12]} />
-              <meshStandardMaterial color="#fafaf9" roughness={0.8} />
+            {/* Thin chrome floor edging */}
+            <mesh position={[0.171, 0.15, -0.02]} castShadow>
+              <boxGeometry args={[0.006, 0.032, 0.54]} />
+              <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
             </mesh>
+            <mesh position={[-0.171, 0.15, -0.02]} castShadow>
+              <boxGeometry args={[0.006, 0.032, 0.54]} />
+              <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+            </mesh>
+            {/* Black rubber floor slats/runner mats */}
+            {[-0.11, -0.07, -0.03, 0.03, 0.07, 0.11].map((xOffset, i) => (
+              <mesh key={i} position={[xOffset, 0.166, -0.02]} castShadow>
+                <boxGeometry args={[0.012, 0.006, 0.46]} />
+                <meshStandardMaterial color="#292524" roughness={0.95} />
+              </mesh>
+            ))}
+
+            {/* Central steel monocoque frame spine */}
+            <mesh position={[0, 0.31, 0.14]} rotation={[-0.6, 0, 0]} castShadow receiveShadow>
+              <boxGeometry args={[0.13, 0.09, 0.36]} />
+              <meshStandardMaterial color="#a7f3d0" roughness={0.15} metalness={0.1} />
+            </mesh>
+
+            {/* 4. FRONT Leg Apron Shield & Horn Nose Cast */}
+            <group position={[0, 0.46, 0.28]} rotation={[0.2, 0, 0]}>
+              {/* Curved Retro Apron Plate */}
+              <mesh castShadow receiveShadow>
+                <boxGeometry args={[0.38, 0.40, 0.018]} />
+                <meshStandardMaterial color="#a7f3d0" roughness={0.15} metalness={0.1} />
+              </mesh>
+              {/* Chrome border trim */}
+              <mesh position={[0.191, 0, 0.001]} castShadow>
+                <boxGeometry args={[0.006, 0.40, 0.022]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+              </mesh>
+              <mesh position={[-0.191, 0, 0.001]} castShadow>
+                <boxGeometry args={[0.006, 0.40, 0.022]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+              </mesh>
+
+              {/* Central Nose Cover / Horn Cast */}
+              <group position={[0, 0.02, 0.012]}>
+                <mesh castShadow>
+                  <boxGeometry args={[0.06, 0.28, 0.024]} />
+                  <meshStandardMaterial color="#a7f3d0" roughness={0.15} />
+                </mesh>
+                {/* Embedded chrome badge/grill */}
+                <mesh position={[0, 0.04, 0.014]} castShadow>
+                  <boxGeometry args={[0.028, 0.08, 0.004]} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+                </mesh>
+                {/* Vespa circular emblem shield */}
+                <mesh position={[0, 0.10, 0.015]} rotation={[0, 0, -Math.PI / 8]}>
+                  <boxGeometry args={[0.032, 0.012, 0.004]} />
+                  <meshStandardMaterial color="#1d4ed8" roughness={0.3} />
+                </mesh>
+              </group>
+
+              {/* Integrated Front Amber Indicators */}
+              <mesh position={[0.13, -0.06, 0.01]} castShadow>
+                <sphereGeometry args={[0.016, 12, 12]} />
+                <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={isNight ? 0.9 : 0.05} />
+              </mesh>
+              <mesh position={[-0.13, -0.06, 0.01]} castShadow>
+                <sphereGeometry args={[0.016, 12, 12]} />
+                <meshStandardMaterial color="#f59e0b" emissive="#f59e0b" emissiveIntensity={isNight ? 0.9 : 0.05} />
+              </mesh>
+            </group>
+
+            {/* Front steering fork column and fender mudguard */}
+            <group position={[0, 0.38, 0.38]} rotation={[0.15, 0, 0]}>
+              {/* Internal chrome fork column */}
+              <mesh position={[0, 0.12, 0]} castShadow>
+                <cylinderGeometry args={[0.015, 0.015, 0.38, 12]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.1} />
+              </mesh>
+              {/* Sweeping Mudguard fender */}
+              <mesh position={[0, -0.06, 0.01]} rotation={[-0.2, 0, 0]} castShadow>
+                <sphereGeometry args={[0.17, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} />
+                <meshStandardMaterial color="#a7f3d0" roughness={0.15} metalness={0.1} />
+              </mesh>
+              {/* Chrome Teardrop Crest on Mudguard */}
+              <mesh position={[0, 0.10, 0.05]} rotation={[0.3, 0, 0]} castShadow>
+                <boxGeometry args={[0.01, 0.012, 0.06]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+              </mesh>
+            </group>
+
+            {/* 5. GORGEOUS BULBOUS REAR COWLING CHEEKS (Classic Vespa flanks) */}
+            {/* Left bulging rear cheek panel */}
+            <group position={[0.16, 0.34, -0.22]} rotation={[0.08, 0.06, -0.05]} scale={[0.85, 1.1, 1.8]}>
+              <mesh castShadow>
+                <sphereGeometry args={[0.13, 18, 18]} />
+                <meshStandardMaterial color="#a7f3d0" roughness={0.15} metalness={0.1} />
+              </mesh>
+            </group>
+            {/* Right bulging rear cheek panel */}
+            <group position={[-0.16, 0.34, -0.22]} rotation={[0.08, -0.06, 0.05]} scale={[0.85, 1.1, 1.8]}>
+              <mesh castShadow>
+                <sphereGeometry args={[0.13, 18, 18]} />
+                <meshStandardMaterial color="#a7f3d0" roughness={0.15} metalness={0.1} />
+              </mesh>
+            </group>
+            {/* Engine cooling fan cover grid (Right side cowl) */}
+            <mesh position={[-0.24, 0.28, -0.18]} rotation={[0, -Math.PI / 2, 0]} castShadow>
+              <cylinderGeometry args={[0.055, 0.055, 0.008, 16]} />
+              <meshStandardMaterial color="#475569" metalness={0.8} roughness={0.3} />
+            </mesh>
+            {/* Chrome guard bumper wraps around flanks */}
+            <mesh position={[0.22, 0.33, -0.19]} rotation={[0.05, 0.08, -0.05]} castShadow>
+              <torusGeometry args={[0.16, 0.005, 8, 24, Math.PI]} />
+              <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+            </mesh>
+            <mesh position={[-0.22, 0.33, -0.19]} rotation={[0.05, -0.08, 0.05]} castShadow>
+              <torusGeometry args={[0.16, 0.005, 8, 24, Math.PI]} />
+              <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+            </mesh>
+
+            {/* 6. PREMIUM SCULPTED TAN LEATHER DOUBLE SADDLE SEAT */}
+            <group position={[0, 0.50, -0.15]}>
+              {/* Rider main seat cushion */}
+              <mesh position={[0, 0, 0.08]} rotation={[-0.04, 0, 0]} castShadow>
+                <boxGeometry args={[0.15, 0.054, 0.22]} />
+                <meshStandardMaterial color="#b45309" roughness={0.55} />
+              </mesh>
+              {/* Passenger slightly raised seat cushion */}
+              <mesh position={[0, 0.016, -0.08]} rotation={[0.02, 0, 0]} castShadow>
+                <boxGeometry args={[0.16, 0.064, 0.22]} />
+                <meshStandardMaterial color="#b45309" roughness={0.55} />
+              </mesh>
+              {/* Chrome trim separation strip */}
+              <mesh position={[0, 0.01, 0]} castShadow>
+                <boxGeometry args={[0.17, 0.016, 0.014]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.15} />
+              </mesh>
+              {/* Passenger chrome grab loop behind seat */}
+              <mesh position={[0, 0.02, -0.21]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+                <torusGeometry args={[0.085, 0.006, 6, 16, Math.PI]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+              </mesh>
+            </group>
+
+            {/* 7. COCKPIT, HANDLEBARS & CRUISE SIDE MIRRORS */}
+            <group position={[0, 0.76, 0.32]}>
+              {/* Body-color steering headset fairing */}
+              <mesh castShadow>
+                <boxGeometry args={[0.18, 0.06, 0.10]} />
+                <meshStandardMaterial color="#a7f3d0" roughness={0.15} />
+              </mesh>
+              {/* Oval Speedometer cluster bezel */}
+              <mesh position={[0, 0.031, -0.01]} rotation={[-0.26, 0, 0]}>
+                <cylinderGeometry args={[0.034, 0.034, 0.005, 12]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.9} roughness={0.1} />
+              </mesh>
+              {/* Speedometer face */}
+              <mesh position={[0, 0.034, -0.01]} rotation={[-0.26, 0, 0]}>
+                <cylinderGeometry args={[0.029, 0.029, 0.001, 12]} />
+                <meshStandardMaterial color="#fafaf9" roughness={0.2} />
+              </mesh>
+
+              {/* Horizontal chrome handlebar stem */}
+              <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
+                <cylinderGeometry args={[0.01, 0.01, 0.44, 16]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+              </mesh>
+              {/* Tan rubber handlebar grips */}
+              <mesh position={[0.21, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+                <cylinderGeometry args={[0.014, 0.014, 0.06, 12]} />
+                <meshStandardMaterial color="#78350f" roughness={0.65} />
+              </mesh>
+              <mesh position={[-0.21, 0, 0]} rotation={[0, 0, Math.PI / 2]} castShadow>
+                <cylinderGeometry args={[0.014, 0.014, 0.06, 12]} />
+                <meshStandardMaterial color="#78350f" roughness={0.65} />
+              </mesh>
+
+              {/* Detailed chrome brake levers */}
+              <mesh position={[0.16, -0.01, 0.022]} rotation={[0.05, 0.18, 0]} castShadow>
+                <boxGeometry args={[0.06, 0.004, 0.01]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.95} />
+              </mesh>
+              <mesh position={[-0.16, -0.01, 0.022]} rotation={[0.05, -0.18, 0]} castShadow>
+                <boxGeometry args={[0.06, 0.004, 0.01]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.95} />
+              </mesh>
+
+              {/* Left Round Chrome Mirror */}
+              <group position={[0.12, 0.02, 0.01]}>
+                {/* Mirror stalk */}
+                <mesh rotation={[-0.2, 0, 0.28]} castShadow>
+                  <cylinderGeometry args={[0.004, 0.004, 0.16, 8]} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.95} />
+                </mesh>
+                {/* Mirror shell */}
+                <mesh position={[0.04, 0.12, -0.02]} rotation={[0, 0.26, 0]} castShadow>
+                  <cylinderGeometry args={[0.03, 0.03, 0.006, 16]} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+                </mesh>
+                {/* Ultra reflective mirror face */}
+                <mesh position={[0.04, 0.12, -0.016]} rotation={[0, 0.26, 0]}>
+                  <cylinderGeometry args={[0.027, 0.027, 0.001, 12]} />
+                  <meshStandardMaterial color="#ffffff" metalness={0.99} roughness={0.01} />
+                </mesh>
+              </group>
+
+              {/* Right Round Chrome Mirror */}
+              <group position={[-0.12, 0.02, 0.01]}>
+                <mesh rotation={[-0.2, 0, -0.28]} castShadow>
+                  <cylinderGeometry args={[0.004, 0.004, 0.16, 8]} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.95} />
+                </mesh>
+                <mesh position={[-0.04, 0.12, -0.02]} rotation={[0, -0.26, 0]} castShadow>
+                  <cylinderGeometry args={[0.03, 0.03, 0.006, 16]} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+                </mesh>
+                <mesh position={[-0.04, 0.12, -0.016]} rotation={[0, -0.26, 0]}>
+                  <cylinderGeometry args={[0.027, 0.027, 0.001, 12]} />
+                  <meshStandardMaterial color="#ffffff" metalness={0.99} roughness={0.01} />
+                </mesh>
+              </group>
+            </group>
+
+            {/* 8. RETRO CIRCULAR CHROME HEADLAMP */}
+            <group position={[0, 0.69, 0.38]}>
+              {/* Chrome bezel housing */}
+              <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
+                <cylinderGeometry args={[0.044, 0.044, 0.03, 24]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.98} roughness={0.08} />
+              </mesh>
+              {/* Glass Lens (Glowing hot warm-white in night mode) */}
+              <mesh position={[0, 0, 0.016]}>
+                <sphereGeometry args={[0.038, 16, 16]} />
+                <meshStandardMaterial
+                  color="#ffffff"
+                  emissive="#fef08a"
+                  emissiveIntensity={isNight ? 3.2 : 0.25}
+                  roughness={0.05}
+                />
+              </mesh>
+              {/* Interactive Night mode light cone spotlight */}
+              {isNight && (
+                <spotLight
+                  position={[0, 0, 0.02]}
+                  angle={Math.PI / 5.2}
+                  penumbra={0.6}
+                  intensity={5.5}
+                  color="#fef08a"
+                  distance={4.2}
+                  castShadow
+                />
+              )}
+            </group>
+
+            {/* 9. VINTAGE TAILLIGHT & REAR LICENSE PLATE */}
+            {/* Ruby-red retro taillight */}
+            <group position={[0, 0.36, -0.39]}>
+              {/* Chrome bracket housing */}
+              <mesh castShadow>
+                <boxGeometry args={[0.035, 0.046, 0.02]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.9} />
+              </mesh>
+              {/* Glowing red glass */}
+              <mesh position={[0, 0, -0.012]} castShadow>
+                <boxGeometry args={[0.03, 0.024, 0.014]} />
+                <meshStandardMaterial color="#dc2626" emissive="#dc2626" emissiveIntensity={isNight ? 2.8 : 0.2} />
+              </mesh>
+            </group>
+            {/* Bali style custom license plate */}
+            <group position={[0, 0.25, -0.40]} rotation={[-0.15, 0, 0]}>
+              {/* Plate frame */}
+              <mesh castShadow>
+                <boxGeometry args={[0.12, 0.056, 0.006]} />
+                <meshStandardMaterial color="#1e293b" roughness={0.9} />
+              </mesh>
+              {/* Plate face */}
+              <mesh position={[0, 0, 0.004]}>
+                <boxGeometry args={[0.11, 0.046, 0.002]} />
+                <meshStandardMaterial color="#fafaf9" roughness={0.8} />
+              </mesh>
+            </group>
+
+            {/* 10. PREMIUM CHROME REAR LUGGAGE RACK & DETAILED PICNIC LEATHER ROLL BAG */}
+            <group position={[0, 0.48, -0.42]}>
+              {/* Sturdy chrome frame mounts */}
+              <mesh position={[0.06, 0, 0]} rotation={[0.2, 0, 0]} castShadow>
+                <cylinderGeometry args={[0.006, 0.006, 0.15, 8]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.9} />
+              </mesh>
+              <mesh position={[-0.06, 0, 0]} rotation={[0.2, 0, 0]} castShadow>
+                <cylinderGeometry args={[0.006, 0.006, 0.15, 8]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.9} />
+              </mesh>
+              {/* Horizontal carrier rack grid */}
+              <mesh position={[0, 0.08, -0.05]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+                <boxGeometry args={[0.20, 0.13, 0.01]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+              </mesh>
+
+              {/* Cylindrical picnic leather roll bag strapped to the rack */}
+              <group position={[0, 0.16, -0.05]}>
+                {/* Main Cylindrical leather body */}
+                <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
+                  <cylinderGeometry args={[0.07, 0.07, 0.22, 16]} />
+                  <meshStandardMaterial color="#7c2d12" roughness={0.7} /> {/* Rich dark mahogany brown leather */}
+                </mesh>
+                {/* Sand wrap-around mounting straps */}
+                <mesh position={[0.06, 0, 0.001]} castShadow>
+                  <torusGeometry args={[0.071, 0.004, 6, 16]} />
+                  <meshStandardMaterial color="#b45309" roughness={0.55} />
+                </mesh>
+                <mesh position={[-0.06, 0, 0.001]} castShadow>
+                  <torusGeometry args={[0.071, 0.004, 6, 16]} />
+                  <meshStandardMaterial color="#b45309" roughness={0.55} />
+                </mesh>
+                {/* Tiny chrome buckles on straps */}
+                <mesh position={[0.06, 0.062, 0.038]} castShadow>
+                  <boxGeometry args={[0.014, 0.011, 0.008]} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.9} />
+                </mesh>
+                <mesh position={[-0.06, 0.062, 0.038]} castShadow>
+                  <boxGeometry args={[0.014, 0.011, 0.008]} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.9} />
+                </mesh>
+              </group>
+            </group>
+
+            {/* 11. CENTRAL KICKSTAND SUPPORT (Keeps Vespa standing perfectly) */}
+            <group position={[0, 0.06, -0.02]} rotation={[0.2, 0, 0]}>
+              <mesh position={[0.08, 0, 0]} castShadow>
+                <cylinderGeometry args={[0.008, 0.008, 0.12, 8]} />
+                <meshStandardMaterial color="#475569" metalness={0.7} />
+              </mesh>
+              <mesh position={[-0.08, 0, 0]} castShadow>
+                <cylinderGeometry args={[0.008, 0.008, 0.12, 8]} />
+                <meshStandardMaterial color="#475569" metalness={0.7} />
+              </mesh>
+            </group>
           </group>
-
-          {/* Front Fat Wheel */}
-          <group position={[0, 0.16, 0.36]} rotation={[0, 0, Math.PI / 2]}>
-            <mesh castShadow>
-              <cylinderGeometry args={[0.16, 0.16, 0.08, 16]} />
-              <meshStandardMaterial color="#1c1917" roughness={0.9} />
-            </mesh>
-            <mesh position={[0, 0.041, 0]}>
-              <cylinderGeometry args={[0.1, 0.1, 0.002, 12]} />
-              <meshStandardMaterial color="#fafaf9" roughness={0.8} />
-            </mesh>
-            <mesh position={[0, -0.041, 0]}>
-              <cylinderGeometry args={[0.1, 0.1, 0.002, 12]} />
-              <meshStandardMaterial color="#fafaf9" roughness={0.8} />
-            </mesh>
-          </group>
-
-          {/* Scooter Floorboard Chassis */}
-          <mesh position={[0, 0.15, 0]} castShadow receiveShadow>
-            <boxGeometry args={[0.18, 0.04, 0.44]} />
-            <meshStandardMaterial color="#1e293b" roughness={0.85} /> {/* Dark grey rubber floor mats */}
-          </mesh>
-
-          {/* Main Retro Engine Body cover (Gorgeous mint green cylinder) */}
-          <group position={[0, 0.33, -0.18]}>
-            <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
-              <cylinderGeometry args={[0.14, 0.14, 0.36, 16]} />
-              <meshStandardMaterial color="#86efac" roughness={0.2} metalness={0.2} /> {/* Retro mint-green */}
-            </mesh>
-            <mesh position={[0, 0, -0.18]} castShadow>
-              <sphereGeometry args={[0.14, 16, 16]} />
-              <meshStandardMaterial color="#86efac" roughness={0.2} />
-            </mesh>
-          </group>
-
-          {/* Premium Nomad Tan Leather Dual Seat */}
-          <mesh position={[0, 0.48, -0.15]} castShadow>
-            <boxGeometry args={[0.13, 0.06, 0.34]} />
-            <meshStandardMaterial color="#b45309" roughness={0.6} /> {/* Rich tan leather */}
-          </mesh>
-
-          {/* Front Shield & Steering Fork Column */}
-          <group position={[0, 0.42, 0.22]}>
-            {/* Fork column */}
-            <mesh position={[0, 0.14, 0.04]} rotation={[0.2, 0, 0]} castShadow>
-              <cylinderGeometry args={[0.015, 0.015, 0.42, 12]} />
-              <meshStandardMaterial color="#94a3b8" metalness={0.85} roughness={0.1} />
-            </mesh>
-            {/* Retro Mint Green Front Apron Shield */}
-            <mesh position={[0, 0.12, 0.08]} rotation={[0.18, 0, 0]} castShadow>
-              <boxGeometry args={[0.22, 0.38, 0.024]} />
-              <meshStandardMaterial color="#86efac" roughness={0.2} />
-            </mesh>
-            {/* Front fender mudguard */}
-            <mesh position={[0, -0.14, 0.1]} castShadow>
-              <sphereGeometry args={[0.1, 12, 12]} />
-              <meshStandardMaterial color="#86efac" roughness={0.2} />
-            </mesh>
-          </group>
-
-          {/* Handlebars with tan rubber grips */}
-          <group position={[0, 0.74, 0.26]}>
-            {/* Horizontal Chrome handlebar */}
-            <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
-              <cylinderGeometry args={[0.01, 0.01, 0.32, 12]} />
-              <meshStandardMaterial color="#94a3b8" metalness={0.9} roughness={0.1} />
-            </mesh>
-            {/* Left Grip */}
-            <mesh position={[0.15, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.012, 0.012, 0.05, 8]} />
-              <meshStandardMaterial color="#78350f" roughness={0.7} />
-            </mesh>
-            {/* Right Grip */}
-            <mesh position={[-0.15, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.012, 0.012, 0.05, 8]} />
-              <meshStandardMaterial color="#78350f" roughness={0.7} />
-            </mesh>
-            {/* Circular chrome mirrors */}
-            <mesh position={[0.1, 0.1, -0.02]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-              <cylinderGeometry args={[0.03, 0.03, 0.005, 12]} />
-              <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.1} />
-            </mesh>
-            <mesh position={[-0.1, 0.1, -0.02]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-              <cylinderGeometry args={[0.03, 0.03, 0.005, 12]} />
-              <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.1} />
-            </mesh>
-          </group>
-
-          {/* Large Retro Circular Headlight */}
-          <group position={[0, 0.66, 0.36]}>
-            {/* Chrome bezel */}
-            <mesh rotation={[Math.PI / 2, 0, 0]} castShadow>
-              <cylinderGeometry args={[0.04, 0.04, 0.03, 16]} />
-              <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.1} />
-            </mesh>
-            {/* Glass Lens (Warm glowing in night mode) */}
-            <mesh position={[0, 0, 0.016]}>
-              <sphereGeometry args={[0.036, 12, 12]} />
-              <meshStandardMaterial
-                color="#ffffff"
-                emissive="#fef08a"
-                emissiveIntensity={isNight ? 2.8 : 0.2}
-                roughness={0.1}
-              />
-            </mesh>
-            {/* Real headlight beam in night mode */}
-            {isNight && (
-              <spotLight
-                position={[0, 0, 0.02]}
-                angle={Math.PI / 6}
-                penumbra={0.5}
-                intensity={4.0}
-                color="#fef08a"
-                distance={3.5}
-              />
-            )}
-          </group>
-        </group>
         </DraggableAsset>
       </AnimatedLifestyle>
 
