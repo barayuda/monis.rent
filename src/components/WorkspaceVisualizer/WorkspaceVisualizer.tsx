@@ -202,8 +202,12 @@ export default function WorkspaceVisualizer() {
         <span className="text-[10px] font-black tracking-widest text-[#8A8478] bg-white/80 backdrop-blur-sm px-2.5 py-1 rounded-full border border-[#E6E1D6] shadow-sm uppercase">
           Orbiting Active 3D Visualizer
         </span>
-        <span className="text-[9px] text-[#6B655A] font-medium bg-[#FAF8F5]/80 backdrop-blur-sm px-2 py-0.5 rounded-md border border-[#E6E1D6]/60 w-fit">
-          Drag to Rotate | Pinch to Zoom
+        <span className="text-[9px] text-[#6B655A] font-medium bg-[#FAF8F5]/80 backdrop-blur-sm px-2.5 py-0.5 rounded-md border border-[#E6E1D6]/60 w-fit flex items-center gap-1.5">
+          <span>Drag to Rotate</span>
+          <span className="text-stone-300">•</span>
+          <span>Pinch to Zoom</span>
+          <span className="text-stone-300">•</span>
+          <span className="text-emerald-700 font-extrabold flex items-center gap-0.5">Click items to play! ✨</span>
         </span>
       </div>
     </div>

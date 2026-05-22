@@ -1,9 +1,66 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useConfigurator } from '@/context/ConfiguratorContext';
+import { useFrame } from '@react-three/fiber';
 import gsap from 'gsap';
 import * as THREE from 'three';
+
+// Procedural steam particle bubble rising from coffee mug
+function SteamBubble({ p }: { p: any }) {
+  const ref = useRef<THREE.Mesh>(null);
+  
+  useFrame((state) => {
+    if (!ref.current) return;
+    const time = state.clock.getElapsedTime() + p.delay;
+    const cycle = (time * p.speed) % 1; // 0 to 1
+    
+    // Float upwards
+    ref.current.position.y = cycle * 0.16;
+    // Sway slightly like rising vapour
+    ref.current.position.x = p.xOffset + Math.sin(time * 3.5) * 0.01;
+    ref.current.position.z = p.zOffset + Math.cos(time * 3.5) * 0.01;
+    
+    // Fade out as it rises
+    if (ref.current.material) {
+      (ref.current.material as THREE.MeshStandardMaterial).opacity = (1 - cycle) * 0.45;
+    }
+    // Grow slightly as it rises
+    const scaleFactor = (0.6 + cycle * 0.6) * p.scale;
+    ref.current.scale.setScalar(scaleFactor);
+  });
+
+  return (
+    <mesh ref={ref}>
+      <sphereGeometry args={[1, 8, 8]} />
+      <meshStandardMaterial 
+        color="#fafaf9" 
+        transparent 
+        opacity={0.4} 
+        roughness={0.9} 
+        emissive="#fafaf9"
+        emissiveIntensity={0.08}
+      />
+    </mesh>
+  );
+}
+
+function SteamParticles({ position }: { position: [number, number, number] }) {
+  const [particles] = useState(() => Array.from({ length: 4 }).map((_, i) => ({
+    id: i,
+    speed: 0.14 + Math.random() * 0.14,
+    xOffset: (Math.random() - 0.5) * 0.015,
+    zOffset: (Math.random() - 0.5) * 0.015,
+    scale: 0.008 + Math.random() * 0.008,
+    delay: i * 0.7
+  })));
+
+  return (
+    <group position={position}>
+      {particles.map((p) => <SteamBubble key={p.id} p={p} />)}
+    </group>
+  );
+}
 
 // Animated wrapper for lifestyle assets to handle spring drop-in & scale transitions
 interface AnimatedLifestyleProps {
@@ -100,6 +157,51 @@ export default function LifestyleModels() {
 
   const isNight = dayNightMode === 'night';
 
+  // Interactive Refs for micro-animations
+  const scooterGroupRef = useRef<THREE.Group>(null);
+  const surfboardGroupRef = useRef<THREE.Group>(null);
+  const mugGroupRef = useRef<THREE.Group>(null);
+
+  const handleScooterClick = (e: any) => {
+    e.stopPropagation();
+    if (!scooterGroupRef.current) return;
+    
+    // Playful Vespa suspension bounce!
+    gsap.fromTo(scooterGroupRef.current.position,
+      { y: 0.15 },
+      { y: 0, duration: 0.8, ease: 'bounce.out' }
+    );
+  };
+
+  const handleSurfboardClick = (e: any) => {
+    e.stopPropagation();
+    if (!surfboardGroupRef.current) return;
+    
+    // Wave sway rock
+    gsap.fromTo(surfboardGroupRef.current.rotation,
+      { z: -0.15 },
+      { z: -0.23, duration: 0.15, yoyo: true, repeat: 5, ease: 'power1.inOut' }
+    );
+  };
+
+  const handleMugClick = (e: any) => {
+    e.stopPropagation();
+    if (!mugGroupRef.current) return;
+    
+    // Cute coffee cup bounce-hop
+    const baseVal = mugGroupRef.current.position.y;
+    gsap.fromTo(mugGroupRef.current.position,
+      { y: baseVal },
+      { 
+        y: baseVal + 0.06, 
+        duration: 0.12, 
+        yoyo: true, 
+        repeat: 1, 
+        ease: 'power2.out' 
+      }
+    );
+  };
+
   return (
     <group>
       {/* ==========================================
@@ -180,7 +282,10 @@ export default function LifestyleModels() {
         defaultPosition={hasCoffeeMachine ? [-1.35, 0.615, 0.12] : [-0.65, 0.75, 0.15]}
         defaultRotation={hasCoffeeMachine ? [0, 0, 0] : [0, Math.PI / 12, 0]}
       >
-        <group>
+        <group ref={mugGroupRef} onClick={handleMugClick}>
+          {/* Dynamic rising steam vapour */}
+          <SteamParticles position={[0, 0.05, 0]} />
+
           {/* Mug Cup Body (Pejaten Terracotta Sandstone finish) */}
           <mesh position={[0, 0.03, 0]} castShadow>
             <cylinderGeometry args={[0.024, 0.024, 0.06, 16]} />
@@ -208,7 +313,7 @@ export default function LifestyleModels() {
         defaultPosition={[-1.35, 0.8, -0.6]}
         defaultRotation={[0.15, 0.35, -0.15]}
       >
-        <group>
+        <group ref={surfboardGroupRef} onClick={handleSurfboardClick}>
           {/* Surfboard body (thin organic compressed sphere) */}
           <mesh castShadow receiveShadow>
             <sphereGeometry args={[0.22, 32, 16]} />
@@ -249,7 +354,7 @@ export default function LifestyleModels() {
           Parked on the floor to the right of the desk.
           ========================================== */}
       <AnimatedLifestyle active={hasScooter} defaultPosition={[1.35, 0, 0.4]} defaultRotation={[0, -Math.PI / 5, 0]}>
-        <group>
+        <group ref={scooterGroupRef} onClick={handleScooterClick}>
           {/* Rear Fat Wheel */}
           <group position={[0, 0.16, -0.36]} rotation={[0, 0, Math.PI / 2]}>
             <mesh castShadow>

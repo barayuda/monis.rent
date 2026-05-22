@@ -38,8 +38,24 @@ export default function ChairModel() {
   const nomadWood = '#5c2d12'; // Solid mahogany accents
   const nomadMetal = '#111827'; // Dark structural frame
 
+  const handleChairClick = (e: any) => {
+    e.stopPropagation();
+    if (!chairGroupRef.current) return;
+    
+    // Play a delightful hydraulic spin animation
+    gsap.to(chairGroupRef.current.rotation, {
+      y: chairGroupRef.current.rotation.y + Math.PI * 2,
+      duration: 1.4,
+      ease: 'back.out(1.2)',
+    });
+  };
+
   return (
-    <group ref={chairGroupRef} position={[0, 0, 0.85]}>
+    <group 
+      ref={chairGroupRef} 
+      position={[0, 0, 0.85]}
+      onClick={handleChairClick}
+    >
       {/* ==========================================
           SHARED HYDRAULIC WHEELBASE (5-STAR BASE)
           ========================================== */}

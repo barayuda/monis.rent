@@ -86,6 +86,58 @@ export default function AccessoryModel() {
   const hasLamp = selectedAccessoryIds.includes('eco-lamp');
   const hasPlant = selectedAccessoryIds.includes('eco-plant');
 
+  // Interactive Refs for micro-animations
+  const plantGroupRef = useRef<THREE.Group>(null);
+  const lampGroupRef = useRef<THREE.Group>(null);
+  const audioGroupRef = useRef<THREE.Group>(null);
+
+  const handlePlantClick = (e: any) => {
+    e.stopPropagation();
+    if (!plantGroupRef.current) return;
+    
+    // Tropical rustle sway
+    gsap.fromTo(plantGroupRef.current.rotation,
+      { y: 0 },
+      {
+        y: 0.15,
+        duration: 0.15,
+        yoyo: true,
+        repeat: 3,
+        ease: 'power1.inOut',
+        onComplete: () => {
+          if (plantGroupRef.current) gsap.to(plantGroupRef.current.rotation, { y: 0, duration: 0.2 });
+        }
+      }
+    );
+    // Soft organic squash/stretch
+    gsap.fromTo(plantGroupRef.current.scale,
+      { x: 1, y: 1, z: 1 },
+      { x: 1.04, y: 0.95, z: 1.04, duration: 0.12, yoyo: true, repeat: 1, ease: 'power2.out' }
+    );
+  };
+
+  const handleLampClick = (e: any) => {
+    e.stopPropagation();
+    if (!lampGroupRef.current) return;
+    
+    // Nod/shake head bounce
+    gsap.fromTo(lampGroupRef.current.rotation,
+      { x: 0 },
+      { x: 0.15, duration: 0.12, yoyo: true, repeat: 1, ease: 'back.out(1.8)' }
+    );
+  };
+
+  const handleAudioClick = (e: any) => {
+    e.stopPropagation();
+    if (!audioGroupRef.current) return;
+    
+    // Dynamic bass thump
+    gsap.fromTo(audioGroupRef.current.scale,
+      { x: 1, y: 1, z: 1 },
+      { x: 1.06, y: 1.06, z: 1.06, duration: 0.08, yoyo: true, repeat: 1, ease: 'power2.out' }
+    );
+  };
+
   return (
     <group position={[0, 0.03, 0]}>
       {/* ==========================================
@@ -271,7 +323,7 @@ export default function AccessoryModel() {
           4. PREMIUM AUDIO PACK (MONITORS + HEADPHONES)
           ========================================== */}
       <AnimatedAccessory active={hasAudio} defaultPosition={[0, 0, 0]}>
-        <group>
+        <group ref={audioGroupRef} onClick={handleAudioClick}>
           {/* LEFT STUDIO MONITOR SPEAKER */}
           <group position={[-1.15, 0.16, -0.28]} rotation={[0, 0.28, 0]}>
             {/* Wood Cabinet */}
@@ -376,7 +428,7 @@ export default function AccessoryModel() {
           5. SMART AMBIENT LED DESK LAMP
           ========================================== */}
       <AnimatedAccessory active={hasLamp} defaultPosition={[-0.95, 0.16, -0.22]}>
-        <group>
+        <group ref={lampGroupRef} onClick={handleLampClick}>
           {/* Sleek cylindrical ceramic base */}
           <mesh position={[0, -0.14, 0]} castShadow>
             <cylinderGeometry args={[0.06, 0.06, 0.03, 16]} />
@@ -428,7 +480,7 @@ export default function AccessoryModel() {
           6. TROPICAL MONSTERA PLANT
           ========================================== */}
       <AnimatedAccessory active={hasPlant} defaultPosition={[0.95, 0.14, -0.22]}>
-        <group>
+        <group ref={plantGroupRef} onClick={handlePlantClick}>
           {/* Terracotta Minimalist Pot */}
           <mesh position={[0, -0.08, 0]} castShadow receiveShadow>
             <cylinderGeometry args={[0.09, 0.065, 0.14, 16]} />
