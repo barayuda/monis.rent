@@ -162,6 +162,178 @@ export default function LifestyleModels() {
 
   const isNight = dayNightMode === 'night';
 
+  // 1. Parametric Surfboard Geometry
+  const surfboardGeometry = React.useMemo(() => {
+    const geom = new THREE.BufferGeometry();
+    
+    const Nu = 50; // length divisions
+    const Nv = 30; // angular divisions
+    
+    const vertices: number[] = [];
+    const indices: number[] = [];
+    const uvs: number[] = [];
+    
+    for (let i = 0; i <= Nu; i++) {
+      const tu = i / Nu;
+      const u = -1.1 + 2.2 * tu; // Y coordinate from -1.1 to 1.1
+      
+      // Surfboard width profile: pointy nose, nice wide midpoint, tapered tail
+      const w = 0.24 * Math.cos((u * Math.PI) / 2.5) * (1.0 - 0.12 * u);
+      // Surfboard thickness profile (foil)
+      const h = 0.032 * Math.cos((u * Math.PI) / 2.5);
+      // Surfboard rocker curve (curved up nose and tail)
+      const r = 0.075 * Math.max(0, u) ** 1.8 + 0.035 * Math.min(0, u) ** 2;
+      
+      for (let j = 0; j <= Nv; j++) {
+        const tv = j / Nv;
+        const v = tv * Math.PI * 2;
+        
+        const x = w * Math.cos(v);
+        const y = u;
+        const z = r + h * Math.sin(v);
+        
+        vertices.push(x, y, z);
+        uvs.push(tv, tu);
+      }
+    }
+    
+    // Faces indices
+    for (let i = 0; i < Nu; i++) {
+      for (let j = 0; j < Nv; j++) {
+        const p0 = i * (Nv + 1) + j;
+        const p1 = p0 + 1;
+        const p2 = (i + 1) * (Nv + 1) + j;
+        const p3 = p2 + 1;
+        
+        // Face 1
+        indices.push(p0, p2, p1);
+        // Face 2
+        indices.push(p1, p2, p3);
+      }
+    }
+    
+    geom.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    geom.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2));
+    geom.setIndex(indices);
+    geom.computeVertexNormals();
+    
+    return geom;
+  }, []);
+
+  // 2. High-Fidelity Canvas Texture for Surfboard Decals
+  const surfboardTexture = React.useMemo(() => {
+    // Return early if server-side (Next.js SSR support)
+    if (typeof window === 'undefined') return null;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 1024;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    // A. Clean warm sand/fiberglass background
+    ctx.fillStyle = '#fafaf9';
+    ctx.fillRect(0, 0, 512, 1024);
+
+    // B. Draw wooden stringers (deck + bottom)
+    const drawStringer = (centerX: number) => {
+      ctx.fillStyle = '#7c2d12'; // Rich mahogany/balsa brown
+      ctx.fillRect(centerX - 2, 0, 4, 1024);
+      // Subtle wood grain lines
+      ctx.fillStyle = '#b45309';
+      ctx.fillRect(centerX - 3, 0, 1, 1024);
+      ctx.fillRect(centerX + 2, 0, 1, 1024);
+    };
+    drawStringer(128); // Deck stringer
+    drawStringer(384); // Bottom stringer
+
+    // C. Retro Bali Sunset resin tint stripe bands
+    const drawStripes = (xStart: number, width: number) => {
+      // 1. Warm sunset orange band
+      ctx.fillStyle = 'rgba(234, 88, 12, 0.9)';
+      ctx.fillRect(xStart, 380, width, 80);
+      
+      // 2. Golden sand yellow band
+      ctx.fillStyle = 'rgba(234, 179, 8, 0.9)';
+      ctx.fillRect(xStart, 460, width, 80);
+
+      // 3. Tropical sea teal band
+      ctx.fillStyle = 'rgba(13, 148, 136, 0.9)';
+      ctx.fillRect(xStart, 540, width, 80);
+    };
+    drawStripes(8, 240);   // Deck stripes
+    drawStripes(264, 240); // Bottom stripes
+
+    // D. Hand-shaped retro logo typography (adds incredible realism)
+    ctx.fillStyle = '#0f172a';
+    ctx.textAlign = 'center';
+    
+    // Deck branding
+    ctx.font = '900 18px "Courier New", monospace';
+    ctx.fillText('MONIS SURF CO.', 128, 220);
+    ctx.font = 'italic 12px Georgia, serif';
+    ctx.fillText('Custom Shaped • Bali', 128, 240);
+
+    // Bottom specifications
+    ctx.font = '900 16px "Courier New", monospace';
+    ctx.fillText('7\'10" FUNBOARD', 384, 220);
+    ctx.font = '11px Georgia, serif';
+    ctx.fillText('23 1/2" x 3 1/8"', 384, 238);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
+    return texture;
+  }, []);
+
+  // 3. Molded Composite Fin Geometry
+  const finGeometry = React.useMemo(() => {
+    const s = new THREE.Shape();
+    s.moveTo(0, 0); // trailing edge base
+    s.lineTo(0.07, 0); // base length
+    // Swept-back curved leading edge to tip
+    s.bezierCurveTo(0.09, 0.04, 0.08, 0.08, 0.05, 0.10);
+    // Swept trailing edge back down
+    s.bezierCurveTo(0.02, 0.07, 0.005, 0.03, 0, 0);
+
+    const extrudeSettings = {
+      depth: 0.004,
+      bevelEnabled: true,
+      bevelSegments: 2,
+      steps: 1,
+      bevelSize: 0.0015,
+      bevelThickness: 0.0015,
+    };
+    return new THREE.ExtrudeGeometry(s, extrudeSettings);
+  }, []);
+
+  // 4. Custom Shaped Tail Pad Geometry
+  const tailPadGeometry = React.useMemo(() => {
+    const s = new THREE.Shape();
+    s.moveTo(-0.055, -0.12);
+    s.lineTo(0.055, -0.12);
+    s.lineTo(0.065, 0.12);
+    s.lineTo(-0.065, 0.12);
+    s.lineTo(-0.055, -0.12);
+
+    const extrudeSettings = {
+      depth: 0.003,
+      bevelEnabled: true,
+      bevelSegments: 1,
+      steps: 1,
+      bevelSize: 0.001,
+      bevelThickness: 0.001,
+    };
+    return new THREE.ExtrudeGeometry(s, extrudeSettings);
+  }, []);
+
+  // Helper to compute deck height and bottom height at Y position to lay elements flat
+  const getSurfboardZSurface = (y: number, deck: boolean) => {
+    const r = 0.075 * Math.max(0, y) ** 1.8 + 0.035 * Math.min(0, y) ** 2;
+    const h = 0.032 * Math.cos((y * Math.PI) / 2.5);
+    return deck ? r + h : r - h;
+  };
+
   // Interactive Refs for micro-animations
   const scooterGroupRef = useRef<THREE.Group>(null);
   const surfboardGroupRef = useRef<THREE.Group>(null);
@@ -328,62 +500,99 @@ export default function LifestyleModels() {
       >
         <DraggableAsset itemId="outdoor-surfboard" surface="floor" parentPosition={[-1.35, -0.5, -0.6]}>
           <group ref={surfboardGroupRef} onClick={handleSurfboardClick}>
-            {/* High-Fidelity Surfboard Body (Tapered Ellipsoidal Longboard Shape) */}
-            <mesh scale={[0.24, 1.2, 0.024]} castShadow receiveShadow>
-              <sphereGeometry args={[1, 32, 16]} />
-              <meshStandardMaterial color="#fafaf9" roughness={0.15} metalness={0.08} />
+            {/* Surfboard Main Body with custom texture and glossy fiberglass finish */}
+            <mesh geometry={surfboardGeometry} castShadow receiveShadow>
+              {surfboardTexture ? (
+                <meshStandardMaterial 
+                  map={surfboardTexture} 
+                  roughness={0.08} 
+                  metalness={0.1} 
+                />
+              ) : (
+                <meshStandardMaterial 
+                  color="#fafaf9" 
+                  roughness={0.12} 
+                  metalness={0.08} 
+                />
+              )}
             </mesh>
 
-            {/* Custom Painted Bali Sunset Decal Stripes (Scaled spheres conforming to edge curves) */}
-            {/* Upper Sunset Orange Stripe (Conforms to width at Y = 0.35) */}
-            <mesh position={[0, 0.35, 0.0015]} scale={[0.228, 0.35, 0.0245]} castShadow>
-              <sphereGeometry args={[1, 32, 16]} />
-              <meshStandardMaterial color="#ea580c" roughness={0.25} />
-            </mesh>
-            {/* Middle Warm Yellow Stripe (Conforms to width at Y = 0.0) */}
-            <mesh position={[0, 0.0, 0.0015]} scale={[0.241, 0.3, 0.0245]} castShadow>
-              <sphereGeometry args={[1, 32, 16]} />
-              <meshStandardMaterial color="#eab308" roughness={0.25} />
-            </mesh>
-            {/* Lower Tropical Teal Stripe (Conforms to width at Y = -0.45) */}
-            <mesh position={[0, -0.45, 0.0015]} scale={[0.212, 0.45, 0.0245]} castShadow>
-              <sphereGeometry args={[1, 32, 16]} />
-              <meshStandardMaterial color="#0d9488" roughness={0.25} />
-            </mesh>
+            {/* Charcoal/Black Rubber Traction Tail Pad with raised kick tail and central arch bar */}
+            <group>
+              {/* Main Grip Pad */}
+              <mesh 
+                geometry={tailPadGeometry} 
+                position={[0, -0.78, getSurfboardZSurface(-0.78, true) + 0.0015]} 
+                rotation={[-0.05, 0, 0]}
+                castShadow
+              >
+                <meshStandardMaterial color="#27272a" roughness={0.9} />
+              </mesh>
+              
+              {/* Raised Kick Tail */}
+              <mesh 
+                position={[0, -0.91, getSurfboardZSurface(-0.91, true) + 0.008]} 
+                rotation={[-0.2, 0, 0]}
+                castShadow
+              >
+                <boxGeometry args={[0.11, 0.04, 0.015]} />
+                <meshStandardMaterial color="#18181b" roughness={0.95} />
+              </mesh>
+              
+              {/* Center Arch Bar */}
+              <mesh 
+                position={[0, -0.78, getSurfboardZSurface(-0.78, true) + 0.0045]} 
+                rotation={[-0.05, 0, 0]}
+                castShadow
+              >
+                <boxGeometry args={[0.012, 0.16, 0.005]} />
+                <meshStandardMaterial color="#18181b" roughness={0.95} />
+              </mesh>
+            </group>
 
-            {/* Natural Wood Stringer running down the center core */}
-            <mesh position={[0, 0, 0.002]} castShadow>
-              <boxGeometry args={[0.006, 2.38, 0.026]} />
-              <meshStandardMaterial color="#78350f" roughness={0.6} />
-            </mesh>
+            {/* Leash Plug recessed in the deck near the tail */}
+            <group position={[0, -1.0, getSurfboardZSurface(-1.0, true)]} rotation={[-0.06, 0, 0]}>
+              {/* Recessed Plug Cup */}
+              <mesh castShadow>
+                <cylinderGeometry args={[0.009, 0.009, 0.004, 16]} />
+                <meshStandardMaterial color="#18181b" roughness={0.7} />
+              </mesh>
+              {/* Tiny Metal Bar */}
+              <mesh position={[0, 0.001, 0]} rotation={[Math.PI / 2, 0, 0]}>
+                <cylinderGeometry args={[0.0012, 0.0012, 0.014, 8]} />
+                <meshStandardMaterial color="#e2e8f0" metalness={0.9} roughness={0.15} />
+              </mesh>
+            </group>
 
-            {/* Black Rubber Traction Tail Pad (For surfer's back foot grip) */}
-            <mesh position={[0, -0.76, 0.022]} rotation={[0, 0, 0]} castShadow>
-              <boxGeometry args={[0.13, 0.28, 0.005]} />
-              <meshStandardMaterial color="#1c1917" roughness={0.95} />
-            </mesh>
-
-            {/* Leash Plug Recess (Tail edge) */}
-            <mesh position={[0, -1.08, 0.02]} castShadow>
-              <cylinderGeometry args={[0.008, 0.008, 0.006, 12]} />
-              <meshStandardMaterial color="#0f172a" roughness={0.8} />
-            </mesh>
-
-            {/* Pro Thruster Fin Setup (Triple fin array on back side) */}
+            {/* Pro Thruster Fin Setup (Triple swept-back fin array on the bottom side) */}
             {/* Center Fin */}
-            <mesh position={[0, -0.92, -0.04]} rotation={[0.2, 0, 0]} castShadow>
-              <boxGeometry args={[0.006, 0.1, 0.1]} />
-              <meshStandardMaterial color="#0f172a" roughness={0.5} />
+            <mesh 
+              geometry={finGeometry} 
+              position={[0, -0.92, getSurfboardZSurface(-0.92, false) - 0.001]} 
+              rotation={[Math.PI / 2, 0, Math.PI / 2]} 
+              castShadow
+            >
+              <meshStandardMaterial color="#18181b" roughness={0.4} metalness={0.1} />
             </mesh>
-            {/* Left Side Fin */}
-            <mesh position={[0.07, -0.86, -0.03]} rotation={[0.2, -0.08, -0.06]} castShadow>
-              <boxGeometry args={[0.005, 0.07, 0.07]} />
-              <meshStandardMaterial color="#0f172a" roughness={0.5} />
+
+            {/* Left Fin (toe-in and canted outwards) */}
+            <mesh 
+              geometry={finGeometry} 
+              position={[-0.075, -0.82, getSurfboardZSurface(-0.82, false) - 0.001]} 
+              rotation={[Math.PI / 2 + 0.1, -0.06, Math.PI / 2]} 
+              castShadow
+            >
+              <meshStandardMaterial color="#18181b" roughness={0.4} metalness={0.1} />
             </mesh>
-            {/* Right Side Fin */}
-            <mesh position={[-0.07, -0.86, -0.03]} rotation={[0.2, 0.08, 0.06]} castShadow>
-              <boxGeometry args={[0.005, 0.07, 0.07]} />
-              <meshStandardMaterial color="#0f172a" roughness={0.5} />
+
+            {/* Right Fin (toe-in and canted outwards) */}
+            <mesh 
+              geometry={finGeometry} 
+              position={[0.075, -0.82, getSurfboardZSurface(-0.82, false) - 0.001]} 
+              rotation={[Math.PI / 2 - 0.1, 0.06, Math.PI / 2]} 
+              castShadow
+            >
+              <meshStandardMaterial color="#18181b" roughness={0.4} metalness={0.1} />
             </mesh>
           </group>
         </DraggableAsset>
