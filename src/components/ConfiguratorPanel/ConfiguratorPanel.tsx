@@ -17,7 +17,12 @@ import {
   Layers,
   Leaf,
   Monitor,
-  FlameKindling
+  FlameKindling,
+  Undo2,
+  Redo2,
+  Volume2,
+  VolumeX,
+  Trash2
 } from 'lucide-react';
 import styles from './ConfiguratorPanel.module.css';
 
@@ -39,6 +44,12 @@ export default function ConfiguratorPanel() {
     dayNightMode,
     ledColor,
     currency,
+    activeTab,
+    soundEnabled,
+    customPresets,
+    toasts,
+    canUndo,
+    canRedo,
     selectDesk,
     selectChair,
     toggleAccessory,
@@ -51,10 +62,23 @@ export default function ConfiguratorPanel() {
     getFormattedPrice,
     customPositions,
     resetAllPositions,
+    setActiveTab,
+    setSoundEnabled,
+    saveCustomPreset,
+    deleteCustomPreset,
+    undo,
+    redo,
+    dismissToast,
   } = useConfigurator();
 
-  const [activeTab, setActiveTab] = useState<'desk' | 'chair' | 'tech' | 'eco'>('desk');
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [showScrollCue, setShowScrollCue] = useState(true);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const isAtBottom = target.scrollHeight - target.scrollTop <= target.clientHeight + 40;
+    setShowScrollCue(!isAtBottom);
+  };
 
   const { baseRate, discountedRate, discountPercent } = getMonthlyRate();
 
@@ -75,7 +99,26 @@ export default function ConfiguratorPanel() {
 
   return (
     <div className={styles.configurator}>
-      {/* Top Banner / Currency & Ambience controls */}
+      {/* Toast Notification Container */}
+      <div className={styles.configurator__toastContainer}>
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className={`${styles.configurator__toast} ${styles[`configurator__toast--${toast.type}`]}`}
+          >
+            <span className="flex-1">{toast.message}</span>
+            <button
+              onClick={() => dismissToast(toast.id)}
+              className={styles.configurator__toastClose}
+              aria-label="Dismiss toast"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* Top Banner / Currency, Actions & Ambience controls */}
       <div className={styles.configurator__topbar}>
         {/* Currency Switcher */}
         <div className={styles.configurator__currencyGroup}>
@@ -98,6 +141,46 @@ export default function ConfiguratorPanel() {
           >
             <Coins className="w-3.5 h-3.5 mr-0.5" />
             IDR
+          </button>
+        </div>
+
+        {/* Undo, Redo, and Audio Mute controls */}
+        <div className={styles.configurator__toolbarGroup}>
+          <button
+            onClick={undo}
+            disabled={!canUndo}
+            className={`${styles.configurator__toolbarBtn} ${
+              !canUndo ? styles['configurator__toolbarBtn--disabled'] : ''
+            }`}
+            title="Undo last change"
+            aria-label="Undo change"
+          >
+            <Undo2 className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={redo}
+            disabled={!canRedo}
+            className={`${styles.configurator__toolbarBtn} ${
+              !canRedo ? styles['configurator__toolbarBtn--disabled'] : ''
+            }`}
+            title="Redo change"
+            aria-label="Redo change"
+          >
+            <Redo2 className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className={`${styles.configurator__toolbarBtn} ${
+              soundEnabled ? styles['configurator__toolbarBtn--soundOn'] : ''
+            }`}
+            title={soundEnabled ? 'Mute Sound FX' : 'Unmute Sound FX'}
+            aria-label="Toggle Sound FX"
+          >
+            {soundEnabled ? (
+              <Volume2 className="w-3.5 h-3.5 text-emerald-600" />
+            ) : (
+              <VolumeX className="w-3.5 h-3.5 text-[#8A8478]" />
+            )}
           </button>
         </div>
 
@@ -124,216 +207,316 @@ export default function ConfiguratorPanel() {
         </div>
       </div>
 
-      {/* Main scrollable body */}
-      <div className={styles.configurator__scrollArea}>
-        {/* Presets Section */}
-        <div className={styles.configurator__section}>
-          <div className="flex justify-between items-center mb-3">
-            <div className="flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-emerald-600" />
-              <h3 className={styles.configurator__sectionTitle}>Bali Vibe Presets</h3>
-            </div>
-            {customPositions && Object.keys(customPositions).length > 0 && (
-              <button
-                onClick={resetAllPositions}
-                className={styles.configurator__resetBtn}
-                title="Reset custom positions to defaults"
-              >
-                <Layers className="w-3.5 h-3.5 mr-1" />
-                Reset Layout
-              </button>
-            )}
-          </div>
-          <div className={styles.configurator__presetGrid}>
-            {PRESET_WORKSPACES.map((preset) => {
-              const isActive =
-                selectedDeskId === preset.deskId &&
-                selectedChairId === preset.chairId &&
-                preset.accessoryIds.every((id) => selectedAccessoryIds.includes(id)) &&
-                selectedAccessoryIds.every((id) => preset.accessoryIds.includes(id));
-
-              return (
+      {/* Scrollable Container Wrapper with Scroll Fading Mask */}
+      <div className={styles.configurator__scrollWrapper}>
+        {/* Main scrollable body */}
+        <div className={styles.configurator__scrollArea} onScroll={handleScroll}>
+          {/* Presets Section */}
+          <div className={styles.configurator__section}>
+            <div className="flex justify-between items-center mb-3">
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-emerald-600 animate-pulse" />
+                <h3 className={styles.configurator__sectionTitle}>Bali Vibe Presets</h3>
+              </div>
+              {customPositions && Object.keys(customPositions).length > 0 && (
                 <button
-                  key={preset.id}
-                  onClick={() => handlePresetSelect(preset.id)}
-                  className={`${styles.configurator__presetCard} ${
-                    isActive ? styles['configurator__presetCard--active'] : ''
-                  }`}
+                  onClick={resetAllPositions}
+                  className={styles.configurator__resetBtn}
+                  title="Reset custom positions to defaults"
                 >
-                  <div className="font-semibold text-xs text-[#1C1A17]">{preset.name}</div>
-                  <div className="text-[10px] text-[#8A8478] mt-0.5 line-clamp-2 leading-relaxed">
-                    {preset.description}
-                  </div>
+                  <Layers className="w-3.5 h-3.5 mr-1" />
+                  Reset Layout
                 </button>
-              );
-            })}
-          </div>
-        </div>
+              )}
+            </div>
 
-        {/* Custom Category Tabs */}
-        <div className={styles.configurator__tabContainer}>
-          <div className={styles.configurator__tabs}>
-            {(['desk', 'chair', 'tech', 'eco'] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`${styles.configurator__tab} ${
-                  activeTab === tab ? styles['configurator__tab--active'] : ''
-                }`}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
-              </button>
-            ))}
-          </div>
-        </div>
+            {/* Combined static and custom user presets */}
+            <div className={styles.configurator__presetGrid}>
+              {PRESET_WORKSPACES.map((preset) => {
+                const isActive =
+                  selectedDeskId === preset.deskId &&
+                  selectedChairId === preset.chairId &&
+                  preset.accessoryIds.every((id) => selectedAccessoryIds.includes(id)) &&
+                  selectedAccessoryIds.every((id) => preset.accessoryIds.includes(id));
 
-        {/* Active Product Grid */}
-        <div className={styles.configurator__section}>
-          <div className={styles.configurator__productGrid}>
-            {activeProducts.map((product) => {
-              const isDesk = product.category === 'desk';
-              const isChair = product.category === 'chair';
-              const isSelected = isDesk
-                ? selectedDeskId === product.id
-                : isChair
-                ? selectedChairId === product.id
-                : selectedAccessoryIds.includes(product.id);
+                return (
+                  <button
+                    key={preset.id}
+                    onClick={() => handlePresetSelect(preset.id)}
+                    className={`${styles.configurator__presetCard} ${
+                      isActive ? styles['configurator__presetCard--active'] : ''
+                    }`}
+                  >
+                    <div className="font-semibold text-xs text-[#1C1A17]">{preset.name}</div>
+                    <div className="text-[10px] text-[#8A8478] mt-0.5 line-clamp-2 leading-relaxed">
+                      {preset.description}
+                    </div>
+                  </button>
+                );
+              })}
 
-              const priceLabel = getFormattedPrice(
-                currency === 'USD' ? product.priceUSD : product.priceIDR
-              );
+              {/* Render custom presets */}
+              {customPresets.map((preset) => {
+                const isActive =
+                  selectedDeskId === preset.deskId &&
+                  selectedChairId === preset.chairId &&
+                  preset.accessoryIds.every((id) => selectedAccessoryIds.includes(id)) &&
+                  selectedAccessoryIds.every((id) => preset.accessoryIds.includes(id));
 
-              return (
-                <div
-                  key={product.id}
-                  onClick={() => {
-                    if (isDesk) selectDesk(product.id);
-                    else if (isChair) selectChair(product.id);
-                    else toggleAccessory(product.id);
-                  }}
-                  className={`${styles.configurator__productCard} ${
-                    isSelected ? styles['configurator__productCard--active'] : ''
-                  }`}
-                >
-                  <div className="flex justify-between items-start mb-1.5">
-                    <h4 className="font-bold text-sm text-[#1C1A17]">{product.name}</h4>
-                    <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100/50">
-                      {priceLabel}/mo
-                    </span>
-                  </div>
-                  
-                  <p className="text-xs text-[#6B655A] leading-relaxed mb-3">
-                    {product.description}
-                  </p>
-
-                  <div className={styles.configurator__productSpecs}>
-                    {product.specs.slice(0, 3).map((spec, i) => (
-                      <span key={i} className={styles.configurator__specBadge}>
-                        {spec}
+                return (
+                  <div
+                    key={preset.id}
+                    className={`${styles.configurator__presetCard} ${styles.configurator__customPresetCard} ${
+                      isActive ? styles['configurator__presetCard--active'] : ''
+                    }`}
+                    onClick={() => handlePresetSelect(preset.id)}
+                  >
+                    <div className="flex justify-between items-start w-full">
+                      <span className="font-bold text-xs text-[#1C1A17] flex items-center gap-1 line-clamp-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse flex-shrink-0" />
+                        {preset.name}
                       </span>
-                    ))}
-                  </div>
-
-                  <div className="flex justify-between items-center mt-3 pt-3 border-t border-[#F0EBE1] text-[10px] font-semibold text-[#8A8478]">
-                    <span>{isDesk || isChair ? 'Included in base setup' : 'Add accessory'}</span>
-                    <div
-                      className={`${styles.configurator__checkbox} ${
-                        isSelected ? styles['configurator__checkbox--active'] : ''
-                      }`}
-                    >
-                      {isSelected && <Check className="w-2.5 h-2.5 text-white stroke-[3px]" />}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteCustomPreset(preset.id);
+                        }}
+                        className={styles.configurator__deletePresetBtn}
+                        title="Delete Preset"
+                      >
+                        <Trash2 className="w-3 h-3 text-stone-400 hover:text-rose-600 transition-colors" />
+                      </button>
+                    </div>
+                    <div className="text-[8px] text-emerald-600 mt-1 font-semibold uppercase tracking-wider">
+                      Custom Layout
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* LED customizable controls inside Eco/Ambience section or always visible */}
-        {dayNightMode === 'night' && (
-          <div className={`${styles.configurator__section} ${styles.configurator__ledCard} animate-fadeIn`}>
-            <div className="flex items-center gap-1.5 mb-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <h3 className="text-xs font-bold uppercase tracking-widest text-emerald-800">
-                Custom Backlight LED (Night Mode Active)
-              </h3>
+                );
+              })}
             </div>
-            <p className="text-xs text-emerald-950/70 mb-3">
-              Switch the glow color of the standing desk LED strips.
-            </p>
-            <div className="flex flex-wrap gap-2.5">
-              {LED_PRESETS.map((preset) => (
+
+            {/* Save current configuration as custom layout preset */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                const name = formData.get('presetName') as string;
+                if (name?.trim()) {
+                  saveCustomPreset(name);
+                  e.currentTarget.reset();
+                }
+              }}
+              className={styles.configurator__savePresetForm}
+            >
+              <input
+                type="text"
+                name="presetName"
+                placeholder="Save Bali setup name..."
+                className={styles.configurator__savePresetInput}
+                required
+                maxLength={20}
+              />
+              <button type="submit" className={styles.configurator__savePresetBtn}>
+                Save Layout
+              </button>
+            </form>
+          </div>
+
+          {/* Custom Category Tabs */}
+          <div className={styles.configurator__tabContainer}>
+            <div className={styles.configurator__tabs}>
+              {/* Sliding Pill Indicator */}
+              <div
+                className={styles.configurator__tabIndicator}
+                style={{
+                  transform: `translateX(${
+                    (['desk', 'chair', 'tech', 'eco'] as const).indexOf(activeTab) * 100
+                  }%)`,
+                }}
+              >
+                <div className={styles.configurator__tabIndicatorPill} />
+              </div>
+
+              {(['desk', 'chair', 'tech', 'eco'] as const).map((tab) => (
                 <button
-                  key={preset.value}
-                  onClick={() => setLedColor(preset.value)}
-                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 ${
-                    preset.bgClass
-                  } ${
-                    ledColor === preset.value
-                      ? 'ring-2 ring-emerald-600 ring-offset-2 scale-105'
-                      : 'opacity-85 hover:opacity-100'
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`${styles.configurator__tab} ${
+                    activeTab === tab ? styles['configurator__tab--active'] : ''
                   }`}
-                  title={preset.name}
-                  aria-label={`Set LED to ${preset.name}`}
                 >
-                  {ledColor === preset.value && (
-                    <Check className={`w-3.5 h-3.5 ${preset.value === '#f8fafc' ? 'text-black' : 'text-white'}`} />
-                  )}
+                  {tab.charAt(0).toUpperCase() + tab.slice(1)}
                 </button>
               ))}
             </div>
           </div>
-        )}
 
-        {/* Lease Duration Slider Section */}
-        <div className={styles.configurator__section}>
-          <div className="flex justify-between items-center mb-3">
-            <div className="flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-emerald-600" />
-              <h3 className={styles.configurator__sectionTitle}>Lease Term Selection</h3>
-            </div>
-            {discountPercent > 0 && (
-              <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100 flex items-center gap-0.5">
-                <Percent className="w-3 h-3" /> Save {discountPercent}%
-              </span>
-            )}
-          </div>
+          {/* Active Product Grid */}
+          <div className={styles.configurator__section}>
+            <div
+              key={activeTab}
+              className={`${styles.configurator__productGrid} ${styles['animate-slideUp']}`}
+            >
+              {activeProducts.map((product) => {
+                const isDesk = product.category === 'desk';
+                const isChair = product.category === 'chair';
+                const isSelected = isDesk
+                  ? selectedDeskId === product.id
+                  : isChair
+                  ? selectedChairId === product.id
+                  : selectedAccessoryIds.includes(product.id);
 
-          <div className="px-1.5">
-            <input
-              type="range"
-              min="0"
-              max="3"
-              step="1"
-              value={currentLeaseIndex !== -1 ? currentLeaseIndex : 1}
-              onChange={handleLeaseChange}
-              className={styles.configurator__slider}
-              aria-label="Lease Duration Slider"
-            />
-            
-            <div className={styles.configurator__sliderTicks}>
-              {LEASE_OPTIONS.map((opt, idx) => {
-                const isActive = opt.durationMonths === leaseDuration;
+                const priceLabel = getFormattedPrice(
+                  currency === 'USD' ? product.priceUSD : product.priceIDR
+                );
+
                 return (
-                  <button
-                    key={opt.durationMonths}
-                    onClick={() => setLeaseDuration(opt.durationMonths)}
-                    className={`${styles.configurator__tickBtn} ${
-                      isActive ? styles['configurator__tickBtn--active'] : ''
+                  <div
+                    key={product.id}
+                    onClick={() => {
+                      if (isDesk) selectDesk(product.id);
+                      else if (isChair) selectChair(product.id);
+                      else toggleAccessory(product.id);
+                    }}
+                    className={`${styles.configurator__productCard} ${
+                      isSelected ? styles['configurator__productCard--active'] : ''
                     }`}
                   >
-                    <span className="block font-bold text-xs">
-                      {opt.durationMonths === 1 ? '1 mo' : `${opt.durationMonths} mos`}
-                    </span>
-                    <span className="block text-[8px] text-[#8A8478] mt-0.5">
-                      {opt.discountPercentage > 0 ? `-${opt.discountPercentage}%` : 'Base'}
-                    </span>
-                  </button>
+                    <div className="flex justify-between items-start mb-1.5">
+                      <h4 className="font-bold text-sm text-[#1C1A17]">{product.name}</h4>
+                      <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100/50">
+                        {priceLabel}/mo
+                      </span>
+                    </div>
+                    
+                    <p className="text-xs text-[#6B655A] leading-relaxed mb-3">
+                      {product.description}
+                    </p>
+
+                    <div className={styles.configurator__productSpecs}>
+                      {product.specs.slice(0, 3).map((spec, i) => (
+                        <span key={i} className={styles.configurator__specBadge}>
+                          {spec}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="flex justify-between items-center mt-3 pt-3 border-t border-[#F0EBE1] text-[10px] font-semibold text-[#8A8478]">
+                      <span>{isDesk || isChair ? 'Included in base setup' : 'Add accessory'}</span>
+                      <div
+                        className={`${styles.configurator__checkbox} ${
+                          isSelected ? styles['configurator__checkbox--active'] : ''
+                        }`}
+                      >
+                        {isSelected && <Check className="w-2.5 h-2.5 text-white stroke-[3px]" />}
+                      </div>
+                    </div>
+                  </div>
                 );
               })}
             </div>
           </div>
+
+          {/* LED customizable controls inside Eco/Ambience section or always visible */}
+          {dayNightMode === 'night' && (
+            <div className={`${styles.configurator__section} ${styles.configurator__ledCard} ${styles['animate-fadeIn']}`}>
+              <div className="flex items-center gap-1.5 mb-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-emerald-800">
+                  Custom Backlight LED (Night Mode Active)
+                </h3>
+              </div>
+              <p className="text-xs text-emerald-950/70 mb-3">
+                Switch the glow color of the standing desk LED strips.
+              </p>
+              <div className="flex flex-wrap gap-2.5">
+                {LED_PRESETS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    onClick={() => setLedColor(preset.value)}
+                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-110 active:scale-95 ${
+                      preset.bgClass
+                    } ${
+                      ledColor === preset.value
+                        ? 'ring-2 ring-emerald-600 ring-offset-2 scale-105'
+                        : 'opacity-85 hover:opacity-100'
+                    }`}
+                    title={preset.name}
+                    aria-label={`Set LED to ${preset.name}`}
+                  >
+                    {ledColor === preset.value && (
+                      <Check className={`w-3.5 h-3.5 ${preset.value === '#f8fafc' ? 'text-black' : 'text-white'}`} />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Lease Duration Slider Section */}
+          <div className={styles.configurator__section}>
+            <div className="flex justify-between items-center mb-3">
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4 text-emerald-600" />
+                <h3 className={styles.configurator__sectionTitle}>Lease Term Selection</h3>
+              </div>
+              {discountPercent > 0 && (
+                <span className="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-100 flex items-center gap-0.5">
+                  <Percent className="w-3 h-3" /> Save {discountPercent}%
+                </span>
+              )}
+            </div>
+
+            <div className="px-1.5">
+              <input
+                type="range"
+                min="0"
+                max="3"
+                step="1"
+                value={currentLeaseIndex !== -1 ? currentLeaseIndex : 1}
+                onChange={handleLeaseChange}
+                className={styles.configurator__slider}
+                aria-label="Lease Duration Slider"
+              />
+              
+              <div className={styles.configurator__sliderTicks}>
+                {LEASE_OPTIONS.map((opt, idx) => {
+                  const isActive = opt.durationMonths === leaseDuration;
+                  return (
+                    <button
+                      key={opt.durationMonths}
+                      onClick={() => setLeaseDuration(opt.durationMonths)}
+                      className={`${styles.configurator__tickBtn} ${
+                        isActive ? styles['configurator__tickBtn--active'] : ''
+                      }`}
+                    >
+                      <span className="block font-bold text-xs">
+                        {opt.durationMonths === 1 ? '1 mo' : `${opt.durationMonths} mos`}
+                      </span>
+                      <span className="block text-[8px] text-[#8A8478] mt-0.5">
+                        {opt.discountPercentage > 0 ? `-${opt.discountPercentage}%` : 'Base'}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Fade Mask to signal scrollability */}
+        <div 
+          className={`${styles.configurator__scrollFade} ${!showScrollCue ? styles['configurator__scrollFade--hidden'] : ''}`} 
+        />
+
+        {/* Pulsing Bouncing Scroll Cue Indicator at the bottom */}
+        <div 
+          className={`${styles.configurator__scrollCue} ${!showScrollCue ? styles['configurator__scrollCue--hidden'] : ''}`}
+        >
+          <span className={styles.configurator__scrollCueText}>Scroll to explore more Bali items</span>
+          <svg className="w-3.5 h-3.5 text-emerald-700 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
         </div>
       </div>
 

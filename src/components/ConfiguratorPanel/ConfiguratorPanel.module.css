@@ -20,6 +20,23 @@
   @apply bg-white text-[#1C1A17] shadow-sm;
 }
 
+/* --- Premium Action Toolbar (Undo, Redo, Mute System) --- */
+.configurator__toolbarGroup {
+  @apply flex bg-[#F0EBE1] p-0.5 rounded-lg border border-[#EDE8DE] mx-2 gap-0.5;
+}
+
+.configurator__toolbarBtn {
+  @apply flex items-center justify-center w-8 h-7 text-xs rounded-md transition-all duration-200 text-[#6B655A] hover:text-[#1C1A17] hover:bg-white/80 cursor-pointer disabled:cursor-not-allowed;
+}
+
+.configurator__toolbarBtn--disabled {
+  @apply opacity-35 hover:bg-transparent hover:text-[#6B655A] cursor-not-allowed;
+}
+
+.configurator__toolbarBtn--soundOn {
+  @apply bg-emerald-50 hover:bg-emerald-100/80;
+}
+
 .configurator__themeGroup {
   @apply flex bg-[#F0EBE1] p-0.5 rounded-lg border border-[#EDE8DE];
 }
@@ -36,8 +53,32 @@
   @apply bg-emerald-950 text-emerald-400 shadow-sm;
 }
 
+/* --- Smooth Infinite Scroll Area with Dynamic Cue and Masks --- */
+.configurator__scrollWrapper {
+  @apply relative flex-1 min-h-0 flex flex-col overflow-hidden;
+}
+
 .configurator__scrollArea {
-  @apply flex-1 overflow-y-auto p-4 md:p-6 space-y-6 scrollbar-thin;
+  @apply flex-1 overflow-y-auto p-4 md:p-6 space-y-6;
+  /* Thin round emerald scrollbars */
+  scrollbar-width: thin;
+  scrollbar-color: #E6E1D6 transparent;
+}
+
+.configurator__scrollArea::-webkit-scrollbar {
+  @apply w-1.5;
+}
+
+.configurator__scrollArea::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.configurator__scrollArea::-webkit-scrollbar-thumb {
+  @apply bg-[#E6E1D6] rounded-full transition-colors duration-200;
+}
+
+.configurator__scrollArea::-webkit-scrollbar-thumb:hover {
+  @apply bg-emerald-600/30;
 }
 
 .configurator__section {
@@ -60,22 +101,53 @@
   @apply bg-emerald-50/70 border-emerald-600 ring-1 ring-emerald-600/30;
 }
 
+/* Custom Preset Card and Controls */
+.configurator__customPresetCard {
+  @apply border-dashed border-emerald-600/30 hover:border-emerald-600/50 bg-emerald-50/10 cursor-pointer;
+}
+
+.configurator__deletePresetBtn {
+  @apply p-1 rounded-md hover:bg-rose-50 transition-all cursor-pointer;
+}
+
+.configurator__savePresetForm {
+  @apply flex gap-2 mt-4;
+}
+
+.configurator__savePresetInput {
+  @apply flex-1 px-3 py-2 text-xs border border-[#E6E1D6] rounded-xl focus:outline-none focus:ring-1 focus:ring-emerald-600 focus:border-emerald-600 bg-[#FAF8F5] placeholder-[#8A8478]/70 text-[#1C1A17] font-semibold;
+}
+
+.configurator__savePresetBtn {
+  @apply px-4 py-2 text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 rounded-xl transition-colors duration-200 cursor-pointer whitespace-nowrap;
+}
+
+/* --- Tactile Tab sliding Pill capsule --- */
 .configurator__tabContainer {
   @apply sticky top-0 bg-white z-10 -mx-4 px-4 py-2 border-y border-[#FAF8F5] shadow-[0_4px_12px_-12px_rgba(0,0,0,0.05)];
 }
 
 .configurator__tabs {
-  @apply flex bg-[#FAF8F5] p-1 rounded-xl border border-[#E6E1D6] gap-1;
+  @apply relative flex bg-[#FAF8F5] p-1 rounded-xl border border-[#E6E1D6] gap-1 overflow-hidden;
 }
 
 .configurator__tab {
-  @apply flex-1 text-center py-2 text-xs font-bold text-[#6B655A] rounded-lg transition-all duration-200 cursor-pointer;
+  @apply relative z-10 flex-1 text-center py-2 text-xs font-bold text-[#6B655A] rounded-lg transition-colors duration-300 cursor-pointer;
 }
 
 .configurator__tab--active {
-  @apply bg-emerald-700 text-white shadow-sm shadow-emerald-700/10;
+  @apply text-white;
 }
 
+.configurator__tabIndicator {
+  @apply absolute top-0 left-0 w-1/4 h-full p-1 transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] pointer-events-none;
+}
+
+.configurator__tabIndicatorPill {
+  @apply w-full h-full bg-emerald-700 rounded-lg shadow-md shadow-emerald-700/20;
+}
+
+/* --- Product Grid and items --- */
 .configurator__productGrid {
   @apply grid grid-cols-1 gap-4;
 }
@@ -132,6 +204,28 @@
   @apply text-emerald-800 bg-emerald-50 border-emerald-100;
 }
 
+/* --- Scroll obviousness Cues --- */
+.configurator__scrollFade {
+  @apply absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white to-transparent pointer-events-none transition-opacity duration-300 z-20;
+}
+
+.configurator__scrollFade--hidden {
+  @apply opacity-0 pointer-events-none;
+}
+
+.configurator__scrollCue {
+  @apply absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-emerald-50 border border-emerald-100/80 rounded-full flex items-center gap-2 shadow-md transition-all duration-300 z-30 pointer-events-none cursor-default;
+}
+
+.configurator__scrollCue--hidden {
+  @apply opacity-0 translate-y-2 scale-95 pointer-events-none;
+}
+
+.configurator__scrollCueText {
+  @apply text-[10px] font-bold text-emerald-800 tracking-wide;
+}
+
+/* --- Premium Rate Card & Action button --- */
 .configurator__rateCard {
   @apply p-5 border-t border-[#E6E1D6] bg-white sticky bottom-0 z-10 shadow-[0_-8px_24px_-16px_rgba(0,0,0,0.1)];
 }
@@ -140,6 +234,37 @@
   @apply w-full py-4 px-6 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm tracking-wide shadow-lg shadow-emerald-600/20 hover:shadow-xl hover:shadow-emerald-600/30 flex items-center justify-center transition-all duration-300 transform active:scale-[0.98] cursor-pointer;
 }
 
+/* --- Floating Toasts Portal --- */
+.configurator__toastContainer {
+  @apply absolute top-16 left-4 right-4 z-50 flex flex-col gap-2 pointer-events-none;
+}
+
+.configurator__toast {
+  @apply pointer-events-auto flex items-center justify-between px-4 py-3 rounded-xl shadow-lg border text-xs font-bold transition-all duration-300;
+  animation: toastEnter 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.configurator__toastClose {
+  @apply ml-2 text-base leading-none opacity-60 hover:opacity-100 transition-opacity p-0.5 cursor-pointer;
+}
+
+.configurator__toast--info {
+  @apply bg-emerald-50 border-emerald-100 text-emerald-800;
+}
+
+.configurator__toast--success {
+  @apply bg-emerald-600 border-emerald-700 text-white;
+}
+
+.configurator__toast--warning {
+  @apply bg-amber-50 border-amber-100 text-amber-800;
+}
+
+.configurator__toast--error {
+  @apply bg-rose-50 border-rose-100 text-rose-800;
+}
+
+/* --- Transitions & Animations --- */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
@@ -149,7 +274,32 @@
   animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideUp {
+  animation: slideUp 0.4s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+}
+
+@keyframes toastEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .configurator__resetBtn {
   @apply flex items-center px-2.5 py-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 rounded-full border border-emerald-100 transition-all duration-200 hover:bg-emerald-100 hover:border-emerald-200 cursor-pointer shadow-sm active:scale-95;
 }
-

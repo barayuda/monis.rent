@@ -1,9 +1,11 @@
 'use client';
 
-import { Canvas } from '@react-three/fiber';
+import { Canvas, useThree } from '@react-three/fiber';
 import { OrbitControls, Stars, ContactShadows, Html } from '@react-three/drei';
 import { useConfigurator } from '@/context/ConfiguratorContext';
 import { RotateCcw } from 'lucide-react';
+import { useEffect } from 'react';
+import gsap from 'gsap';
 import DeskModel from '../ModelPrimitives/DeskModel';
 import ChairModel from '../ModelPrimitives/ChairModel';
 import AccessoryModel from '../ModelPrimitives/AccessoryModel';
@@ -34,7 +36,7 @@ function Hotspot({ position, label, onClick }: HotspotProps) {
         <span className="absolute w-5 h-5 rounded-full bg-emerald-400/20 group-hover:scale-125 transition-transform duration-300" />
         
         {/* Main emerald-green point-of-interest button */}
-        <span className="relative z-10 flex items-center justify-center w-5.5 h-5.5 rounded-full bg-emerald-600 border-2 border-white shadow-[0_4px_12px_rgba(16,185,129,0.4)] transition-all duration-300 group-hover:scale-115 group-hover:bg-emerald-500">
+        <span className="relative z-10 flex items-center justify-center w-5.5 h-5.5 rounded-full bg-emerald-600 border-2 border-white shadow-[0_4px_12px_rgba(16,185,129,0.4)] transition-all duration-300 group-hover:scale-115 group-hover:bg-emerald-50">
           <svg
             className="w-3 h-3 text-white"
             fill="none"
@@ -54,6 +56,63 @@ function Hotspot({ position, label, onClick }: HotspotProps) {
       </button>
     </Html>
   );
+}
+
+// --- CameraRig sub-component to handle cinematic 3D focus transitions ---
+function CameraRig() {
+  const { activeTab } = useConfigurator();
+  const { camera, controls } = useThree() as any;
+
+  useEffect(() => {
+    if (!camera) return;
+
+    // Premium transition targets for workspace categories
+    const targets: Record<
+      'desk' | 'chair' | 'tech' | 'eco',
+      { position: [number, number, number]; target: [number, number, number] }
+    > = {
+      desk: { position: [2.8, 2.2, 3.2], target: [0, 0.4, 0] },        // Overlooking overall workspace
+      chair: { position: [2.0, 1.0, 2.4], target: [0, 0.1, 0.4] },       // Zoomed/canted on chair
+      tech: { position: [0.0, 1.4, 1.8], target: [0, 0.85, -0.2] },      // Curving monitor close-up
+      eco: { position: [1.4, 0.9, 1.6], target: [0.9, 0.35, -0.2] },    // Focusing on Monstera/plants
+    };
+
+    const dest = targets[activeTab] || targets.desk;
+
+    // Kill any ongoing tweens on camera.position and controls.target to prevent fighting
+    gsap.killTweensOf(camera.position);
+    if (controls) {
+      gsap.killTweensOf(controls.target);
+    }
+
+    // Animate camera position
+    gsap.to(camera.position, {
+      x: dest.position[0],
+      y: dest.position[1],
+      z: dest.position[2],
+      duration: 1.5,
+      ease: 'power2.out',
+      onUpdate: () => {
+        if (controls) controls.update();
+      },
+    });
+
+    // Animate orbit controls target
+    if (controls) {
+      gsap.to(controls.target, {
+        x: dest.target[0],
+        y: dest.target[1],
+        z: dest.target[2],
+        duration: 1.5,
+        ease: 'power2.out',
+        onUpdate: () => {
+          controls.update();
+        },
+      });
+    }
+  }, [activeTab, camera, controls]);
+
+  return null;
 }
 
 export default function WorkspaceVisualizer() {
@@ -108,6 +167,9 @@ export default function WorkspaceVisualizer() {
             minPolarAngle={0.1}
             maxPolarAngle={Math.PI / 2 - 0.05} // Prevent going underground
           />
+
+          {/* Cinematic 3D Camera Focus Rig */}
+          <CameraRig />
 
           {/* Ambient Lighting */}
           <ambientLight intensity={ambientIntensity} />
