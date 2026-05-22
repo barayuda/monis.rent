@@ -222,7 +222,6 @@ export default function LifestyleModels() {
 
   // 2. High-Fidelity Canvas Texture for Surfboard Decals
   const surfboardTexture = React.useMemo(() => {
-    // Return early if server-side (Next.js SSR support)
     if (typeof window === 'undefined') return null;
 
     const canvas = document.createElement('canvas');
@@ -235,50 +234,135 @@ export default function LifestyleModels() {
     ctx.fillStyle = '#fafaf9';
     ctx.fillRect(0, 0, 512, 1024);
 
-    // B. Draw wooden stringers (deck + bottom)
-    const drawStringer = (centerX: number) => {
-      ctx.fillStyle = '#7c2d12'; // Rich mahogany/balsa brown
-      ctx.fillRect(centerX - 2, 0, 4, 1024);
-      // Subtle wood grain lines
-      ctx.fillStyle = '#b45309';
-      ctx.fillRect(centerX - 3, 0, 1, 1024);
-      ctx.fillRect(centerX + 2, 0, 1, 1024);
-    };
-    drawStringer(128); // Deck stringer
-    drawStringer(384); // Bottom stringer
-
-    // C. Retro Bali Sunset resin tint stripe bands
-    const drawStripes = (xStart: number, width: number) => {
-      // 1. Warm sunset orange band
-      ctx.fillStyle = 'rgba(234, 88, 12, 0.9)';
-      ctx.fillRect(xStart, 380, width, 80);
-      
-      // 2. Golden sand yellow band
-      ctx.fillStyle = 'rgba(234, 179, 8, 0.9)';
-      ctx.fillRect(xStart, 460, width, 80);
-
-      // 3. Tropical sea teal band
-      ctx.fillStyle = 'rgba(13, 148, 136, 0.9)';
-      ctx.fillRect(xStart, 540, width, 80);
-    };
-    drawStripes(8, 240);   // Deck stripes
-    drawStripes(264, 240); // Bottom stripes
-
-    // D. Hand-shaped retro logo typography (adds incredible realism)
-    ctx.fillStyle = '#0f172a';
-    ctx.textAlign = 'center';
+    // B. Draw DECK sunset gradient (x from 0 to 256)
+    const sunsetGrad = ctx.createLinearGradient(0, 50, 0, 974);
+    sunsetGrad.addColorStop(0, '#1e1b4b'); // twilight deep indigo top
+    sunsetGrad.addColorStop(0.45, '#ef4444'); // rich coral red middle
+    sunsetGrad.addColorStop(1, '#f59e0b'); // warm golden amber bottom
     
-    // Deck branding
+    ctx.fillStyle = sunsetGrad;
+    ctx.fillRect(0, 0, 256, 1024);
+
+    // C. Draw glowing golden solar sphere (sun overlay) in the center of the deck
+    const sunY = 480;
+    const sunX = 128;
+    const sunRad = 64;
+    ctx.fillStyle = '#fef08a'; // glowing yellow
+    ctx.beginPath();
+    ctx.arc(sunX, sunY, sunRad, 0, Math.PI * 2);
+    ctx.fill();
+
+    // D. Draw beautiful palm silhouettes growing from a curved black islet at the bottom of the sun
+    ctx.fillStyle = '#0f172a'; // deep charcoal silhouette
+    
+    // Curved islet
+    ctx.beginPath();
+    ctx.arc(sunX, sunY + 110, 90, Math.PI, Math.PI * 2);
+    ctx.fill();
+
+    // Helper to draw a palm tree
+    const drawPalmTree = (baseX: number, baseY: number, trunkHeight: number, curveDir: number, scale: number) => {
+      ctx.strokeStyle = '#0f172a';
+      ctx.lineWidth = 4.5 * scale;
+      ctx.lineCap = 'round';
+      
+      // Draw trunk
+      ctx.beginPath();
+      ctx.moveTo(baseX, baseY);
+      const cpX = baseX + curveDir * 30;
+      const cpY = baseY - trunkHeight * 0.5;
+      const endX = baseX + curveDir * 42;
+      const endY = baseY - trunkHeight;
+      ctx.quadraticCurveTo(cpX, cpY, endX, endY);
+      ctx.stroke();
+
+      // Draw leaves
+      ctx.fillStyle = '#0f172a';
+      const leafCount = 6;
+      for (let i = 0; i < leafCount; i++) {
+        const angle = (i / leafCount) * Math.PI * 2;
+        ctx.beginPath();
+        ctx.ellipse(
+          endX + Math.cos(angle) * 12 * scale,
+          endY + Math.sin(angle) * 7 * scale,
+          14 * scale,
+          4.5 * scale,
+          angle + 0.18 * curveDir,
+          0,
+          Math.PI * 2
+        );
+        ctx.fill();
+      }
+    };
+
+    // Main left leaning palm
+    drawPalmTree(sunX - 12, sunY + 50, 115, -0.55, 0.95);
+    // Right smaller leaning palm
+    drawPalmTree(sunX + 18, sunY + 52, 90, 0.45, 0.75);
+
+    // E. Draw wooden stringers (deck + bottom)
+    const drawStringer = (centerX: number, isDeck: boolean) => {
+      if (isDeck) {
+        ctx.fillStyle = 'rgba(124, 45, 18, 0.45)'; // Semi-translucent wood deck stringer
+      } else {
+        ctx.fillStyle = '#7c2d12'; // Rich mahogany bottom stringer
+      }
+      ctx.fillRect(centerX - 2, 0, 4, 1024);
+    };
+    drawStringer(128, true); // Deck stringer
+    drawStringer(384, false); // Bottom stringer (clean opaque wood on solid white back)
+
+    // F. Hand-shaped retro logo typography
+    // Deck branding: elegant gold/white premium label overlay
+    ctx.fillStyle = '#ffffff';
+    ctx.textAlign = 'center';
     ctx.font = '900 18px "Courier New", monospace';
     ctx.fillText('MONIS SURF CO.', 128, 220);
-    ctx.font = 'italic 12px Georgia, serif';
-    ctx.fillText('Custom Shaped • Bali', 128, 240);
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('• CANGGU, BALI •', 128, 240);
 
-    // Bottom specifications
+    // Bottom specifications (clean black ink look)
+    ctx.fillStyle = '#0f172a';
     ctx.font = '900 16px "Courier New", monospace';
     ctx.fillText('7\'10" FUNBOARD', 384, 220);
     ctx.font = '11px Georgia, serif';
     ctx.fillText('23 1/2" x 3 1/8"', 384, 238);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.needsUpdate = true;
+    return texture;
+  }, []);
+
+  // 2B. High-Fidelity Balinese License Plate Texture
+  const licensePlateTexture = React.useMemo(() => {
+    if (typeof window === 'undefined') return null;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return null;
+
+    // Black background
+    ctx.fillStyle = '#1c1917';
+    ctx.fillRect(0, 0, 256, 128);
+
+    // White rim border
+    ctx.strokeStyle = '#f5f5f4';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(6, 6, 244, 116);
+    
+    // License plate numbers
+    ctx.fillStyle = '#f5f5f4';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = 'bold 42px monospace';
+    ctx.fillText('DK 8085 CGU', 128, 55);
+
+    // Expiry date (05 . 31)
+    ctx.font = 'bold 16px monospace';
+    ctx.fillText('05 • 31', 128, 98);
 
     const texture = new THREE.CanvasTexture(canvas);
     texture.colorSpace = THREE.SRGBColorSpace;
@@ -604,7 +688,7 @@ export default function LifestyleModels() {
           ========================================== */}
       <AnimatedLifestyle active={hasScooter} defaultPosition={[1.35, 0, 0.4]} defaultRotation={[0, -Math.PI / 5, 0]}>
         <DraggableAsset itemId="outdoor-scooter" surface="floor" parentPosition={[1.35, -0.5, 0.4]}>
-          <group ref={scooterGroupRef} onClick={handleScooterClick}>
+          <group ref={scooterGroupRef} onClick={handleScooterClick} rotation={[0, 0, -0.08]}>
             {/* 1. REAR fat white-wall wheel with spoked rim hub */}
             <group position={[0, 0.16, -0.38]} rotation={[0, 0, Math.PI / 2]}>
               {/* Dark stone-grey rubber tire */}
@@ -703,11 +787,11 @@ export default function LifestyleModels() {
             {/* Thin chrome floor edging */}
             <mesh position={[0.171, 0.15, -0.02]} castShadow>
               <boxGeometry args={[0.006, 0.032, 0.54]} />
-              <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+              <meshStandardMaterial color="#cbd5e1" metalness={0.98} roughness={0.04} />
             </mesh>
             <mesh position={[-0.171, 0.15, -0.02]} castShadow>
               <boxGeometry args={[0.006, 0.032, 0.54]} />
-              <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+              <meshStandardMaterial color="#cbd5e1" metalness={0.98} roughness={0.04} />
             </mesh>
             {/* Black rubber floor slats/runner mats */}
             {[-0.11, -0.07, -0.03, 0.03, 0.07, 0.11].map((xOffset, i) => (
@@ -890,12 +974,12 @@ export default function LifestyleModels() {
                 {/* Mirror stalk */}
                 <mesh rotation={[-0.2, 0, 0.28]} castShadow>
                   <cylinderGeometry args={[0.004, 0.004, 0.16, 8]} />
-                  <meshStandardMaterial color="#cbd5e1" metalness={0.95} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.98} roughness={0.04} />
                 </mesh>
                 {/* Mirror shell */}
                 <mesh position={[0.04, 0.12, -0.02]} rotation={[0, 0.26, 0]} castShadow>
                   <cylinderGeometry args={[0.03, 0.03, 0.006, 16]} />
-                  <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.98} roughness={0.04} />
                 </mesh>
                 {/* Ultra reflective mirror face */}
                 <mesh position={[0.04, 0.12, -0.016]} rotation={[0, 0.26, 0]}>
@@ -908,11 +992,11 @@ export default function LifestyleModels() {
               <group position={[-0.12, 0.02, 0.01]}>
                 <mesh rotation={[-0.2, 0, -0.28]} castShadow>
                   <cylinderGeometry args={[0.004, 0.004, 0.16, 8]} />
-                  <meshStandardMaterial color="#cbd5e1" metalness={0.95} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.98} roughness={0.04} />
                 </mesh>
                 <mesh position={[-0.04, 0.12, -0.02]} rotation={[0, -0.26, 0]} castShadow>
                   <cylinderGeometry args={[0.03, 0.03, 0.006, 16]} />
-                  <meshStandardMaterial color="#cbd5e1" metalness={0.95} roughness={0.1} />
+                  <meshStandardMaterial color="#cbd5e1" metalness={0.98} roughness={0.04} />
                 </mesh>
                 <mesh position={[-0.04, 0.12, -0.016]} rotation={[0, -0.26, 0]}>
                   <cylinderGeometry args={[0.027, 0.027, 0.001, 12]} />
@@ -973,10 +1057,14 @@ export default function LifestyleModels() {
                 <boxGeometry args={[0.12, 0.056, 0.006]} />
                 <meshStandardMaterial color="#1e293b" roughness={0.9} />
               </mesh>
-              {/* Plate face */}
+              {/* Plate face with custom high-res Bali plate texture */}
               <mesh position={[0, 0, 0.004]}>
                 <boxGeometry args={[0.11, 0.046, 0.002]} />
-                <meshStandardMaterial color="#fafaf9" roughness={0.8} />
+                {licensePlateTexture ? (
+                  <meshBasicMaterial map={licensePlateTexture} />
+                ) : (
+                  <meshStandardMaterial color="#fafaf9" roughness={0.8} />
+                )}
               </mesh>
             </group>
 
@@ -1025,15 +1113,16 @@ export default function LifestyleModels() {
               </group>
             </group>
 
-            {/* 11. CENTRAL KICKSTAND SUPPORT (Keeps Vespa standing perfectly) */}
-            <group position={[0, 0.06, -0.02]} rotation={[0.2, 0, 0]}>
-              <mesh position={[0.08, 0, 0]} castShadow>
-                <cylinderGeometry args={[0.008, 0.008, 0.12, 8]} />
-                <meshStandardMaterial color="#475569" metalness={0.7} />
+            {/* 11. PREMIUM POLISHED CHROME SINGLE SIDE KICKSTAND */}
+            <group position={[-0.12, 0.05, -0.02]} rotation={[0.1, 0, 0.4]}>
+              <mesh castShadow>
+                <cylinderGeometry args={[0.009, 0.009, 0.14, 8]} />
+                <meshStandardMaterial color="#cbd5e1" metalness={0.98} roughness={0.04} />
               </mesh>
-              <mesh position={[-0.08, 0, 0]} castShadow>
-                <cylinderGeometry args={[0.008, 0.008, 0.12, 8]} />
-                <meshStandardMaterial color="#475569" metalness={0.7} />
+              {/* Kickstand foot flat on ground */}
+              <mesh position={[0, -0.07, 0]} rotation={[0.1, 0, -0.4]} castShadow>
+                <boxGeometry args={[0.028, 0.006, 0.035]} />
+                <meshStandardMaterial color="#334155" metalness={0.9} roughness={0.1} />
               </mesh>
             </group>
           </group>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
-import { useFrame } from '@react-three/fiber';
+import { useFrame, useThree } from '@react-three/fiber';
 import { Html } from '@react-three/drei';
 import { useConfigurator } from '@/context/ConfiguratorContext';
 import * as THREE from 'three';
@@ -22,9 +22,9 @@ export default function DraggableAsset({
   const {
     customPositions,
     updateCustomPosition,
-    isDragging,
-    setIsDragging,
   } = useConfigurator();
+
+  const controls = useThree((state: any) => state.controls);
 
   const groupRef = useRef<THREE.Group>(null);
   const [localDragging, setLocalDragging] = useState(false);
@@ -51,7 +51,9 @@ export default function DraggableAsset({
     if (localDragging) {
       const handleGlobalPointerUp = () => {
         setLocalDragging(false);
-        setIsDragging(false);
+        if (controls) {
+          controls.enabled = true;
+        }
         document.body.style.cursor = hovered ? 'grab' : 'auto';
 
         if (groupRef.current) {
@@ -65,7 +67,7 @@ export default function DraggableAsset({
         window.removeEventListener('pointerup', handleGlobalPointerUp);
       };
     }
-  }, [localDragging, hovered, itemId, updateCustomPosition, setIsDragging]);
+  }, [localDragging, hovered, itemId, updateCustomPosition, controls]);
 
   // Buttery-smooth, frame-locked raycasting inside R3F useFrame loop.
   // This uses canvas-wide pointer events, meaning the asset tracks the mouse smoothly
@@ -120,14 +122,18 @@ export default function DraggableAsset({
   const handlePointerDown = (e: any) => {
     e.stopPropagation();
     setLocalDragging(true);
-    setIsDragging(true);
+    if (controls) {
+      controls.enabled = false;
+    }
     document.body.style.cursor = 'grabbing';
   };
 
   const handlePointerUp = (e: any) => {
     e.stopPropagation();
     setLocalDragging(false);
-    setIsDragging(false);
+    if (controls) {
+      controls.enabled = true;
+    }
     document.body.style.cursor = hovered ? 'grab' : 'auto';
 
     if (groupRef.current) {

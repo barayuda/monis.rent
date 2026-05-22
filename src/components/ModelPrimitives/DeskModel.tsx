@@ -4,12 +4,15 @@ import React, { useRef, useEffect } from 'react';
 import { useConfigurator } from '@/context/ConfiguratorContext';
 import gsap from 'gsap';
 import * as THREE from 'three';
+import { useFrame } from '@react-three/fiber';
+import { Html } from '@react-three/drei';
 
 export default function DeskModel({ children }: { children?: React.ReactNode }) {
   const { selectedDeskId, dayNightMode, ledColor } = useConfigurator();
   
   const topGroupRef = useRef<THREE.Group>(null);
   const ledLightRef = useRef<THREE.PointLight>(null);
+  const heightDisplayRef = useRef<HTMLDivElement>(null);
 
   const isBamboo = selectedDeskId === 'desk-bamboo';
   const deskHeight = isBamboo ? 1.15 : 0.72; // Bamboo is standing desk, Walnut is standard executive desk
@@ -47,6 +50,15 @@ export default function DeskModel({ children }: { children?: React.ReactNode }) 
       });
     }
   }, [ledColor]);
+
+  // Zero-re-render high-performance dynamic standing desk controller screen updater
+  useFrame(() => {
+    if (heightDisplayRef.current && topGroupRef.current) {
+      const currentHeight = topGroupRef.current.position.y;
+      const cm = Math.round(currentHeight * 100);
+      heightDisplayRef.current.innerText = `${cm} cm`;
+    }
+  });
 
   // Materials & Colors based on selected desk style
   const topColor = isBamboo ? '#eed9b3' : '#3e2b20'; // Warm honey bamboo vs Dark rich walnut
@@ -172,6 +184,92 @@ export default function DeskModel({ children }: { children?: React.ReactNode }) 
           decay={2.0}
         />
         
+        {/* 4. Sleek Standing Desk Controller Box (High-Fidelity digital height screen & tactile arrow keys) */}
+        {isBamboo && (
+          <group position={[1.1, -0.04, 0.65]} rotation={[-0.15, 0, 0]}>
+            {/* Elegant matte slate-black casing matching high-end office accessories */}
+            <mesh castShadow receiveShadow>
+              <boxGeometry args={[0.16, 0.04, 0.08]} />
+              <meshStandardMaterial color="#1e293b" roughness={0.65} metalness={0.7} />
+            </mesh>
+            
+            {/* Screen Bevel Border */}
+            <mesh position={[-0.03, 0.0, 0.0405]}>
+              <planeGeometry args={[0.076, 0.028]} />
+              <meshStandardMaterial color="#0f172a" roughness={0.4} />
+            </mesh>
+
+            {/* Deep Glass LCD Screen Bed */}
+            <mesh position={[-0.03, 0.0, 0.041]}>
+              <planeGeometry args={[0.07, 0.024]} />
+              <meshBasicMaterial color="#020617" />
+            </mesh>
+
+            {/* Cyan backlight emissive overlay */}
+            <mesh position={[-0.03, 0.0, 0.0415]}>
+              <planeGeometry args={[0.068, 0.022]} />
+              <meshBasicMaterial color="#06b6d4" opacity={0.15} transparent />
+            </mesh>
+
+            {/* High-fidelity glowing 3D-space transformed digital HTML height readout */}
+            <Html
+              transform
+              distanceFactor={0.08}
+              position={[-0.03, 0.0, 0.042]}
+              rotation={[0, 0, 0]}
+            >
+              <div
+                ref={heightDisplayRef}
+                style={{
+                  fontFamily: '"Courier New", Courier, monospace',
+                  fontWeight: 'bold',
+                  fontSize: '18px',
+                  color: '#22d3ee',
+                  textShadow: '0 0 5px #06b6d4, 0 0 10px #06b6d4',
+                  background: 'rgba(2, 6, 23, 0.95)',
+                  padding: '2px 5px',
+                  borderRadius: '2px',
+                  border: '1px solid rgba(6, 182, 212, 0.4)',
+                  width: '65px',
+                  textAlign: 'center',
+                  userSelect: 'none',
+                  letterSpacing: '0.5px',
+                }}
+              >
+                72 cm
+              </div>
+            </Html>
+
+            {/* Tactile Button Panel - Up Arrow Button */}
+            <mesh position={[0.032, 0.006, 0.041]} castShadow>
+              <boxGeometry args={[0.015, 0.009, 0.004]} />
+              <meshStandardMaterial color="#475569" roughness={0.35} metalness={0.6} />
+            </mesh>
+            {/* Button tactile Up icon (small emboss) */}
+            <mesh position={[0.032, 0.006, 0.0435]}>
+              <planeGeometry args={[0.008, 0.004]} />
+              <meshBasicMaterial color="#94a3b8" />
+            </mesh>
+
+            {/* Tactile Button Panel - Down Arrow Button */}
+            <mesh position={[0.052, 0.006, 0.041]} castShadow>
+              <boxGeometry args={[0.015, 0.009, 0.004]} />
+              <meshStandardMaterial color="#475569" roughness={0.35} metalness={0.6} />
+            </mesh>
+            {/* Button tactile Down icon */}
+            <mesh position={[0.052, 0.006, 0.0435]}>
+              <planeGeometry args={[0.008, 0.004]} />
+              <meshBasicMaterial color="#94a3b8" />
+            </mesh>
+
+            {/* Tiny Green Status LED Indicator (indicating active connection/calibrated) */}
+            <mesh position={[0.042, -0.01, 0.041]}>
+              <planeGeometry args={[0.004, 0.004]} />
+              <meshBasicMaterial color="#10b981" />
+            </mesh>
+          </group>
+        )}
+
         {/* Render children (accessories) inside the moving group */}
         {children}
       </group>

@@ -77,8 +77,343 @@ const AnimatedAccessory: React.FC<AnimatedAccessoryProps> = ({ active, defaultPo
   return <group ref={groupRef}>{children}</group>;
 };
 
+// --- Beautiful Organic Procedural Split-Leaf Monstera Leaf Component ---
+interface MonsteraLeafProps {
+  scale?: [number, number, number];
+}
+
+const MonsteraLeaf: React.FC<MonsteraLeafProps> = ({ scale = [1, 1, 1] }) => {
+  return (
+    <group scale={scale}>
+      {/* Central main spine (tapering midrib) */}
+      <mesh castShadow receiveShadow position={[0, 0, 0.1]}>
+        <boxGeometry args={[0.008, 0.003, 0.22]} />
+        <meshStandardMaterial color="#059669" roughness={0.6} />
+      </mesh>
+      
+      {/* Lobe 1 (Bottom Left) */}
+      <mesh castShadow position={[-0.04, 0, 0.03]} rotation={[0, 0, 0.6]} receiveShadow>
+        <boxGeometry args={[0.08, 0.002, 0.024]} />
+        <meshStandardMaterial color="#047857" roughness={0.7} />
+      </mesh>
+      
+      {/* Lobe 2 (Bottom Right) */}
+      <mesh castShadow position={[0.04, 0, 0.03]} rotation={[0, 0, -0.6]} receiveShadow>
+        <boxGeometry args={[0.08, 0.002, 0.024]} />
+        <meshStandardMaterial color="#047857" roughness={0.7} />
+      </mesh>
+      
+      {/* Lobe 3 (Middle Left) */}
+      <mesh castShadow position={[-0.05, 0, 0.09]} rotation={[0, 0, 0.35]} receiveShadow>
+        <boxGeometry args={[0.1, 0.002, 0.028]} />
+        <meshStandardMaterial color="#047857" roughness={0.7} />
+      </mesh>
+      
+      {/* Lobe 4 (Middle Right) */}
+      <mesh castShadow position={[0.05, 0, 0.09]} rotation={[0, 0, -0.35]} receiveShadow>
+        <boxGeometry args={[0.1, 0.002, 0.028]} />
+        <meshStandardMaterial color="#047857" roughness={0.7} />
+      </mesh>
+
+      {/* Lobe 5 (Top Left) */}
+      <mesh castShadow position={[-0.04, 0, 0.15]} rotation={[0, 0, 0.15]} receiveShadow>
+        <boxGeometry args={[0.09, 0.002, 0.026]} />
+        <meshStandardMaterial color="#047857" roughness={0.7} />
+      </mesh>
+      
+      {/* Lobe 6 (Top Right) */}
+      <mesh castShadow position={[0.04, 0, 0.15]} rotation={[0, 0, -0.15]} receiveShadow>
+        <boxGeometry args={[0.09, 0.002, 0.026]} />
+        <meshStandardMaterial color="#047857" roughness={0.7} />
+      </mesh>
+      
+      {/* Lobe 7 (Tip / Terminal cap) */}
+      <mesh castShadow position={[0, 0, 0.2]} receiveShadow>
+        <boxGeometry args={[0.035, 0.002, 0.05]} />
+        <meshStandardMaterial color="#047857" roughness={0.7} />
+      </mesh>
+    </group>
+  );
+};
+
 export default function AccessoryModel() {
   const { selectedAccessoryIds, dayNightMode } = useConfigurator();
+
+  // Programmatically construct high-fidelity active screen textures via HTML5 Canvas
+  const screenTextures = React.useMemo(() => {
+    if (typeof window === 'undefined') return null;
+
+    // Helper to generate a code editor IDE screen texture
+    const createIDETexture = (width: number, height: number, type: 'full' | 'sidebar' | 'code' | 'terminal') => {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+
+      // Dark slate background
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, width, height);
+
+      if (type === 'sidebar' || type === 'full') {
+        // Draw file tree directory sidebar
+        ctx.fillStyle = '#1e293b';
+        const sidebarWidth = type === 'full' ? Math.round(width * 0.22) : width;
+        ctx.fillRect(0, 0, sidebarWidth, height);
+
+        // Sidebar EXPLORER header
+        ctx.fillStyle = '#64748b';
+        ctx.font = `bold ${Math.max(10, Math.round(height * 0.045))}px monospace`;
+        ctx.fillText('EXPLORER: MONIS', 12, 25);
+
+        // Fake folder tree
+        const treeItems = [
+          { name: '📁 src', indent: 10, color: '#38bdf8' },
+          { name: '  📁 components', indent: 18, color: '#38bdf8' },
+          { name: '    📄 Workspace.tsx', indent: 26, color: '#fbbf24' },
+          { name: '    📄 AccessoryModel.tsx', indent: 26, color: '#fbbf24' },
+          { name: '  📁 styles', indent: 18, color: '#38bdf8' },
+          { name: '    📄 main.css', indent: 26, color: '#34d399' },
+          { name: '  📄 App.tsx', indent: 18, color: '#fbbf24' },
+          { name: '📄 package.json', indent: 10, color: '#ef4444' },
+        ];
+
+        let yOffset = 50;
+        ctx.font = `${Math.max(9, Math.round(height * 0.038))}px monospace`;
+        treeItems.forEach((item) => {
+          ctx.fillStyle = item.color;
+          ctx.fillText(item.name, item.indent, yOffset);
+          yOffset += Math.round(height * 0.082);
+        });
+      }
+
+      if (type === 'code' || type === 'full') {
+        const codeStartX = type === 'full' ? Math.round(width * 0.25) : 15;
+        const codeWidth = type === 'full' ? Math.round(width * 0.75) : width;
+
+        // Draw top tab headers
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(codeStartX - 10, 0, codeWidth + 10, 32);
+
+        // Open file tab
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(codeStartX - 10, 0, 150, 32);
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = '10px monospace';
+        ctx.fillText('Workspace.tsx ×', codeStartX + 10, 20);
+
+        // Inactive tab
+        ctx.fillStyle = '#64748b';
+        ctx.fillText('main.css', codeStartX + 160, 20);
+
+        // Code code block with syntax highlights
+        let yOffset = 55;
+        ctx.font = `bold ${Math.max(10, Math.round(height * 0.042))}px monospace`;
+
+        const codeLines = [
+          { text: 'import React from "react";', color: '#c084fc' },
+          { text: 'import { Canvas } from "@react-three/fiber";', color: '#c084fc' },
+          { text: '', color: '' },
+          { text: 'export const DreamWorkspace = () => {', color: '#f43f5e' },
+          { text: '  const { items } = useConfigurator();', color: '#38bdf8' },
+          { text: '  ', color: '' },
+          { text: '  return (', color: '#f43f5e' },
+          { text: '    <div className="bali-vibes-setup">', color: '#34d399' },
+          { text: '      <Canvas shadowMap camera={{ pos: [0, 5] }}>', color: '#fbbf24' },
+          { text: '        <ambientLight intensity={0.5} />', color: '#fbbf24' },
+          { text: '        <BaliOffice items={items} />', color: '#38bdf8' },
+          { text: '      </Canvas>', color: '#fbbf24' },
+          { text: '    </div>', color: '#34d399' },
+          { text: '  );', color: '#f43f5e' },
+          { text: '};', color: '#f43f5e' },
+        ];
+
+        codeLines.forEach((line, index) => {
+          // Line numbers gutter
+          ctx.fillStyle = '#475569';
+          ctx.fillText((index + 1).toString().padStart(2, ' '), codeStartX - 10, yOffset);
+
+          // Line code
+          ctx.fillStyle = line.color || '#f8fafc';
+          ctx.fillText(line.text, codeStartX + 20, yOffset);
+          yOffset += Math.round(height * 0.062);
+        });
+
+        // Glowing cyan cursor caret
+        ctx.fillStyle = '#22d3ee';
+        ctx.fillRect(codeStartX + 310, 115, 2, 14);
+      }
+
+      if (type === 'terminal') {
+        // Draw terminal text with logs
+        let yOffset = 25;
+        ctx.fillStyle = '#10b981';
+        ctx.font = 'bold 11px monospace';
+        ctx.fillText('canggu-developer@monis-bali:~$ npm run dev', 12, yOffset);
+        yOffset += 25;
+
+        ctx.font = '10px monospace';
+        const terminalLines = [
+          { text: '▲ [next] Ready in 1.2s (http://localhost:3000)', color: '#fbbf24' },
+          { text: '✔ Dynamic 3D visualizer assets initialized.', color: '#34d399' },
+          { text: '✔ R3F canvas hook running at 60fps stable.', color: '#34d399' },
+          { text: 'ℹ WebGLRenderer target: shadowMap true', color: '#38bdf8' },
+          { text: '✔ Tailwind v4 reference compiled.', color: '#34d399' },
+          { text: '✨ Live reload server waiting for changes...', color: '#60a5fa' }
+        ];
+
+        terminalLines.forEach((line) => {
+          ctx.fillStyle = line.color;
+          ctx.fillText(line.text, 12, yOffset);
+          yOffset += 20;
+        });
+      }
+
+      // VSCode-style status bar at bottom
+      ctx.fillStyle = '#0284c7';
+      ctx.fillRect(0, height - 18, width, 18);
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = '9px sans-serif';
+      ctx.fillText(' 🔀 master* | UTF-8 | TypeScript JSX | Ln 5, Col 24 | Prettier ✔', 8, height - 5);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.minFilter = THREE.LinearFilter;
+      texture.needsUpdate = true;
+      return texture;
+    };
+
+    // Helper to generate a Dashboard/Analytics screen texture
+    const createDashboardTexture = (width: number, height: number) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+
+      // Dark slate background
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, width, height);
+
+      // Top Header
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, 0, width, 45);
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillText('MONIS RENTAL METRICS & ANALYTICS', 15, 26);
+
+      ctx.fillStyle = '#06b6d4';
+      ctx.font = 'bold 9px monospace';
+      ctx.fillText('60FPS STABLE LIVE CONSOLE', width - 160, 25);
+
+      // Draw Grid for coordinate curve graph
+      const gX = 15;
+      const gY = 60;
+      const gW = Math.round(width * 0.62);
+      const gH = height - 85;
+
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 1;
+
+      // Grid vertical lines
+      for (let x = gX; x <= gX + gW; x += gW / 5) {
+        ctx.beginPath();
+        ctx.moveTo(x, gY);
+        ctx.lineTo(x, gY + gH);
+        ctx.stroke();
+      }
+      // Grid horizontal lines
+      for (let y = gY; y <= gY + gH; y += gH / 4) {
+        ctx.beginPath();
+        ctx.moveTo(gX, y);
+        ctx.lineTo(gX + gW, y);
+        ctx.stroke();
+      }
+
+      // Draw Glowing Analytics coordinates curve
+      // Teal Curve (#14b8a6)
+      ctx.strokeStyle = '#14b8a6';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(gX, gY + gH * 0.75);
+      for (let i = 0; i <= 60; i++) {
+        const x = gX + (i / 60) * gW;
+        const ratio = i / 60;
+        const y = gY + gH * (0.65 - Math.sin(ratio * Math.PI * 2.2) * 0.22 - ratio * 0.15);
+        ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      // Translucent area fill under curve
+      ctx.fillStyle = 'rgba(20, 184, 166, 0.08)';
+      ctx.lineTo(gX + gW, gY + gH);
+      ctx.lineTo(gX, gY + gH);
+      ctx.closePath();
+      ctx.fill();
+
+      // Right panels (Metrics & Doughnut chart)
+      const rX = gX + gW + 15;
+      const rW = width - rX - 15;
+
+      // Metric box 1 (Conversion Rate)
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(rX, 60, rW, 50);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '8px sans-serif';
+      ctx.fillText('CONVERSION', rX + 10, 75);
+      ctx.fillStyle = '#10b981'; // vibrant green
+      ctx.font = 'bold 16px sans-serif';
+      ctx.fillText('14.82% ▲', rX + 10, 98);
+
+      // Metric box 2 (Doughnut KPI)
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(rX, 122, rW, height - 142);
+
+      // Draw circular progress doughnut
+      const cX = rX + rW / 2;
+      const cY = 170;
+      const rad = 24;
+
+      // Inner gray base circle
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.arc(cX, cY, rad, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Glowing amber progress arc (82%)
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.arc(cX, cY, rad, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * 0.82);
+      ctx.stroke();
+
+      // Inside progress text
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('82%', cX, cY);
+
+      // Doughnut label
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '8px sans-serif';
+      ctx.fillText('OCCUPANCY', cX, cY + rad + 14);
+
+      const texture = new THREE.CanvasTexture(canvas);
+      texture.minFilter = THREE.LinearFilter;
+      texture.needsUpdate = true;
+      return texture;
+    };
+
+    return {
+      ultrawideLeft: createIDETexture(256, 256, 'sidebar'),
+      ultrawideCenter: createIDETexture(512, 256, 'code'),
+      ultrawideRight: createIDETexture(256, 256, 'terminal'),
+      dualLeft: createIDETexture(512, 256, 'full'),
+      dualRight: createDashboardTexture(512, 256),
+    };
+  }, []);
 
   const hasUltrawide = selectedAccessoryIds.includes('tech-ultrawide');
   const hasDual = selectedAccessoryIds.includes('tech-dual');
@@ -190,7 +525,11 @@ export default function AccessoryModel() {
             </mesh>
             <mesh position={[0, 0, -0.026]}>
               <boxGeometry args={[0.60, 0.44, 0.005]} />
-              <meshStandardMaterial color="#020617" emissive="#0284c7" emissiveIntensity={0.3} roughness={0.9} />
+              {screenTextures ? (
+                <meshBasicMaterial map={screenTextures.ultrawideCenter} />
+              ) : (
+                <meshStandardMaterial color="#020617" emissive="#0284c7" emissiveIntensity={0.3} roughness={0.9} />
+              )}
             </mesh>
 
             {/* Left Angled Panel */}
@@ -202,7 +541,11 @@ export default function AccessoryModel() {
               {/* Screen Glow code editor simulation */}
               <mesh position={[0, 0, 0.019]}>
                 <boxGeometry args={[0.46, 0.44, 0.005]} />
-                <meshStandardMaterial color="#020617" emissive="#10b981" emissiveIntensity={0.45} roughness={0.9} />
+                {screenTextures ? (
+                  <meshBasicMaterial map={screenTextures.ultrawideLeft} />
+                ) : (
+                  <meshStandardMaterial color="#020617" emissive="#10b981" emissiveIntensity={0.45} roughness={0.9} />
+                )}
               </mesh>
             </group>
 
@@ -215,7 +558,11 @@ export default function AccessoryModel() {
               {/* Screen Glow charts simulation */}
               <mesh position={[0, 0, 0.019]}>
                 <boxGeometry args={[0.46, 0.44, 0.005]} />
-                <meshStandardMaterial color="#020617" emissive="#3b82f6" emissiveIntensity={0.4} roughness={0.9} />
+                {screenTextures ? (
+                  <meshBasicMaterial map={screenTextures.ultrawideRight} />
+                ) : (
+                  <meshStandardMaterial color="#020617" emissive="#3b82f6" emissiveIntensity={0.4} roughness={0.9} />
+                )}
               </mesh>
             </group>
           </group>
@@ -260,7 +607,11 @@ export default function AccessoryModel() {
             {/* Glowing active screen surface */}
             <mesh position={[0, 0, 0.016]}>
               <boxGeometry args={[0.71, 0.43, 0.005]} />
-              <meshStandardMaterial color="#020617" emissive="#10b981" emissiveIntensity={0.45} roughness={0.9} />
+              {screenTextures ? (
+                <meshBasicMaterial map={screenTextures.dualLeft} />
+              ) : (
+                <meshStandardMaterial color="#020617" emissive="#10b981" emissiveIntensity={0.45} roughness={0.9} />
+              )}
             </mesh>
           </group>
 
@@ -273,7 +624,11 @@ export default function AccessoryModel() {
             {/* Glowing active screen surface */}
             <mesh position={[0, 0, 0.016]}>
               <boxGeometry args={[0.71, 0.43, 0.005]} />
-              <meshStandardMaterial color="#020617" emissive="#f59e0b" emissiveIntensity={0.35} roughness={0.9} />
+              {screenTextures ? (
+                <meshBasicMaterial map={screenTextures.dualRight} />
+              ) : (
+                <meshStandardMaterial color="#020617" emissive="#f59e0b" emissiveIntensity={0.35} roughness={0.9} />
+              )}
             </mesh>
           </group>
         </group>
@@ -553,11 +908,10 @@ export default function AccessoryModel() {
                 <cylinderGeometry args={[0.006, 0.008, 0.24, 8]} />
                 <meshStandardMaterial color="#059669" roughness={0.7} />
               </mesh>
-              {/* Split Monstera Leaf blade */}
-              <mesh position={[0, 0.22, 0]} rotation={[Math.PI / 2.5, 0, 0]} castShadow>
-                <boxGeometry args={[0.16, 0.003, 0.22]} />
-                <meshStandardMaterial color="#047857" roughness={0.65} />
-              </mesh>
+              {/* High fidelity Split Monstera Leaf blade */}
+              <group position={[0, 0.22, 0]} rotation={[Math.PI / 2.5, 0, 0]}>
+                <MonsteraLeaf scale={[0.95, 1, 0.95]} />
+              </group>
             </group>
 
             {/* Stem & Leaf 2 (Right & Center) */}
@@ -566,10 +920,10 @@ export default function AccessoryModel() {
                 <cylinderGeometry args={[0.006, 0.008, 0.28, 8]} />
                 <meshStandardMaterial color="#059669" roughness={0.7} />
               </mesh>
-              <mesh position={[0, 0.26, 0]} rotation={[Math.PI / 2.3, 0.2, -0.2]} castShadow>
-                <boxGeometry args={[0.18, 0.003, 0.25]} />
-                <meshStandardMaterial color="#047857" roughness={0.65} />
-              </mesh>
+              {/* High fidelity Split Monstera Leaf blade */}
+              <group position={[0, 0.26, 0]} rotation={[Math.PI / 2.3, 0.2, -0.2]}>
+                <MonsteraLeaf scale={[1.05, 1, 1.05]} />
+              </group>
             </group>
 
             {/* Stem & Leaf 3 (High arching center leaf) */}
@@ -578,10 +932,10 @@ export default function AccessoryModel() {
                 <cylinderGeometry args={[0.006, 0.008, 0.35, 8]} />
                 <meshStandardMaterial color="#059669" roughness={0.7} />
               </mesh>
-              <mesh position={[0, 0.34, 0]} rotation={[Math.PI / 2.1, 0, 0.3]} castShadow>
-                <boxGeometry args={[0.21, 0.003, 0.28]} />
-                <meshStandardMaterial color="#047857" roughness={0.65} />
-              </mesh>
+              {/* High fidelity Split Monstera Leaf blade */}
+              <group position={[0, 0.34, 0]} rotation={[Math.PI / 2.1, 0, 0.3]}>
+                <MonsteraLeaf scale={[1.2, 1, 1.2]} />
+              </group>
             </group>
           </group>
         </group>

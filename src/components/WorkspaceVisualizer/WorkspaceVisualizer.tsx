@@ -64,7 +64,6 @@ export default function WorkspaceVisualizer() {
     dayNightMode,
     ledColor,
     toggleAccessory,
-    isDragging,
     customPositions,
     resetAllPositions,
   } = useConfigurator();
@@ -101,7 +100,7 @@ export default function WorkspaceVisualizer() {
 
           {/* Orbit Camera Controls */}
           <OrbitControls 
-            enabled={!isDragging}
+            makeDefault
             enableDamping
             dampingFactor={0.05}
             minDistance={1.8}
